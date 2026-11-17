@@ -1,0 +1,9 @@
+canonical_symbol,status,account_type,observation_utc,actual_symbol,min_lot,max_lot,lot_step,contract_size,digits,point_size,tick_size,tick_value_in_account_currency,stop_level_points,freeze_level_points,trade_mode,execution_mode,filling_modes,expiry_modes,trade_sessions_server_time,spread_sample_points,commission_per_lot_per_side,currency,projected_min_margin_account_currency,source_or_note
+EURUSD,PENDING,,,,,,,,,,,,,,,,,,,,,,,
+GBPUSD,PENDING,,,,,,,,,,,,,,,,,,,,,,,
+USDJPY,PENDING,,,,,,,,,,,,,,,,,,,,,,,
+USDCHF,PENDING,,,,,,,,,,,,,,,,,,,,,,,
+USDCAD,PENDING,,,,,,,,,,,,,,,,,,,,,,,
+AUDUSD,PENDING,,,,,,,,,,,,,,,,,,,,,,,
+NZDUSD,PENDING,,,,,,,,,,,,,,,,,,,,,,,
+XAUUSD,PENDING,,,,,,,,,,,,,,,,,,,,,,,

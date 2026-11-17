@@ -1,0 +1,58 @@
+# Windows setup — Stage 1
+
+**For beginners. The only task to do first is Task 1.** Do not place orders, fund an account, install an EA, or enable automation at this point. A **demo** account uses virtual money; **MT5 desktop** is the Windows program that will eventually run the Expert Advisor (EA). The web and mobile terminals are not substitutes for the desktop EA and compiler.
+
+## Task 1 — Connect one Exness Standard MT5 demo
+
+1. **Find or create the demo.** In your browser, go to Exness via its [official account guide](https://get.exness.help/hc/en-us/articles/4408633634322-How-to-create-trading-accounts), sign into the Personal Area (Exness's account portal), and open **My Accounts** (under **Trading** in some layouts) → **Demo**. You can reuse a card marked **Standard · Demo · MT5**. If there is none, click **Open Account** → **Standard** → **Continue** → **Demo** → **MT5**. Give it a nickname such as `USTS Demo`, leave leverage and virtual balance at the form's defaults if available, and create a separate trading password. USD is useful for later apples-to-apples comparisons, if offered; no exchange or deposit is needed. Before submitting, check you selected **Demo** and **MT5** (not **Real**, **MT4**, or Exness-only). If you still need to register, use the official site and your real residence details; supply any required verification only there. [1](https://get.exness.help/hc/en-us/articles/4408633634322-How-to-create-trading-accounts)
+2. **Find three login fields.** Back on the **Demo** tab, expand the account card. Keep its numeric **MT5 login**, exact **server**, and **trading password** handy on your PC. The trading password is for that terminal account; don't put it in notes or send it here. If you do not know the trading password, use the card's **Change Trading Password** option. [2](https://get.exness.help/hc/en-us/articles/360012578619-Trading-account-login-and-server-details)
+3. **Install MT5 desktop.** In the [official Exness MT5 desktop guide](https://get.exness.help/hc/en-us/articles/360011514572-MT5-Trading-guide-Desktop), open **Installing MT5** and click **Windows**. Save the installer in **Downloads** if prompted. Open the downloaded `.exe`; use **Next** to install, then **Finish**. If you already have a working modern MT5 installation used only for demos, use it. If your existing terminal manages real positions, leave it alone; use **Settings → Browse** in the installer and choose a separate folder such as `C:\Trading\MT5-USTS-Demo` (or another folder where Windows allows installation). Launch that instance rather than changing the live one. Cancel any automatic **Open an Account** wizard at first launch. [2](https://get.exness.help/hc/en-us/articles/360011514572-MT5-Trading-guide-Desktop) [10](https://get.exness.help/hc/en-us/articles/360020561100-Can-I-open-many-platforms-and-trade-on-a-single-device)
+4. **Sign in to the demo in MT5.** Click **File → Login to Trade Account**. Enter the demo account's numeric **Login**, **Password**, and **Server** exactly as shown in your Personal Area. Click **OK** or **Login** (the label can vary). If the server is missing, use **File → Open an Account**, type `Exness` in the broker search, select the Exness entry with the matching server, then return to **File → Login to Trade Account**. Do not create a real account from the wizard. [2](https://get.exness.help/hc/en-us/articles/360011514572-MT5-Trading-guide-Desktop)
+5. **Verify, without trading.** Leave the demo terminal's **Algo Trading** off. Check the bottom-right connection indicator. If **Market Watch** is not visible, use **View → Market Watch** or `Ctrl+M`. It lists Bid and Ask, the available quote prices. When the market is open the quotes should update; outside market hours check for a successful demo login in **View → Toolbox → Journal** (`Ctrl+T` opens the Toolbox). Press **F4** (or **Fn+F4** on some laptops) to check that **MetaEditor**, the included code editor and compiler, opens. There is nothing to compile yet. [2](https://www.metatrader5.com/en/terminal/help/algotrading/autotrading)
+
+**Success:** Exness Personal Area says **Standard · Demo · MT5**, MT5 is connected to that demo, and MetaEditor opens. No orders or deposits were made. **Stop here and report whether you connected.** If blocked, send the exact error words with account identifiers removed, not a full screenshot or Journal export.
+
+| If this happens | What to check |
+|---|---|
+| `Invalid account` or `Authorization failed` | Compare the numeric demo login and exact server with the account card. Ensure the card says MT5. Reset the trading password in the portal if necessary. Do not paste any passwords into chat. [9](https://get.exness.help/hc/en-us/articles/360012111639--Invalid-Account-error) |
+| `No connection` | Compare the server name, check your Internet, and launch the desktop terminal you just installed. If it persists, check the single Journal message and remove private details before sharing. Do not disable the Windows firewall or antivirus to force access. |
+| Quotes appear frozen but demo is connected | Check Market Watch for a quoted symbol and the market hours. Weekends, daily breaks, maintenance and holidays can stop quotes. [1](https://get.exness.help/hc/en-us/articles/4405235684498-Instrument-trading-hours) |
+| MT5 server or desired demo account is not listed | Check that the Personal Area account platform is MT5, not the Exness platform. Verify availability with official support. Standard is the starting check; do not switch to a funded or netting account as a workaround. |
+| F4 doesn't open MetaEditor | Use the dedicated MetaEditor toolbar/menu command or Fn+F4. Confirm you are running MT5 for Windows, not the browser. |
+
+## Next in Stage 1 — read-only verification after Task 1
+
+We will work through this separately. In MT5, **Help → About** shows the build. Find instruments by opening **Market Watch**, right-click **Symbols**, search each of the eight base names, and double-click the correct account-specific symbol to show it. Right-click each row → **Specification**. Record published versus observed values in a private copy of the [blank worksheet](../Testing/DemoSymbolInventory.csv); enter “not shown” where a property is absent. In Market Watch's context menu, show the **Time** column, compare several fresh quote times with UTC, and confirm the documented midnight boundary later. Open **View → Toolbox → Calendar** to check visibility and recent events; UI visibility does not prove programmatic freshness. [1](https://www.metatrader5.com/en/terminal/help/trading/market_watch) [1](https://www.mql5.com/en/book/advanced/calendar)
+
+Check the applicable agreement through the Personal Area footer and the [feasibility report](../FeasibilityReport.md#compliance-gate-not-all-automation-is-equivalent). Use any read-only native account probe only after the relevant data access is confirmed. The probe will show whether the account is truly hedging and permits opposite positions without sending a trade; never infer this from the account nickname. Keep notes and broker data private.
+
+## Git and the starter package — after the demo check
+
+**Git** saves versions of project files on your PC; **GitHub** is an optional-at-setup, planned private remote copy for collaboration and recovery. A private remote is not a place to put credentials, broker exports or backups.
+
+1. Save the starter ZIP in **Downloads**. In File Explorer, right-click it → **Extract All…**. Use the suggested folder or choose `Downloads\USTS-Stage1`. The extracted folder contains a plain project copy and `UltraShortTermTradingSystem-stage1.bundle`; the bundle carries the initial Git history. You can already open the plain project's `README.md` in a text editor.
+2. Download **Git for Windows** from [git-scm.com](https://git-scm.com/install/windows). Choose the installer for your system under **Settings → System → About → System type** (normally x64). Open it, accept defaults including the Windows command-line support and Git Credential Manager, then click **Install → Finish**. Open a **new** PowerShell from Start and type `git --version`. Success shows `git version ...`. If it says not recognized, reopen PowerShell or rerun the installer and enable Git on the command line. PowerShell is where you type commands; paste one line at a time and press Enter.
+3. In File Explorer, right-click the folder that contains the `.bundle` and choose **Open in Terminal** if offered. Otherwise open PowerShell, type `cd ` (including the space), then the quoted full path to that folder, and press Enter. `Get-ChildItem -Name` should list the bundle. Type these commands to make a working copy, leaving the extracted backup alone:
+
+   ```powershell
+   New-Item -ItemType Directory -Force -Path "$HOME\TradingProjects"
+   git clone --branch main .\UltraShortTermTradingSystem-stage1.bundle "$HOME\TradingProjects\UltraShortTermTradingSystem"
+   Set-Location "$HOME\TradingProjects\UltraShortTermTradingSystem"
+   git status --short --branch
+   git log -1 --oneline
+   ```
+
+   Success shows branch `main` and the initial Stage 1 commit; no changed files are expected. If Git says the destination exists, do not delete anything; choose a new empty destination and use the same path for `Set-Location`.
+4. When ready to create the remote, sign in at [github.com](https://github.com/), enable account two-factor authentication, then **+ → New repository**. Name it `UltraShortTermTradingSystem`, choose **Private**, and leave GitHub's options to initialize README, `.gitignore` and license unchecked. Click **Create repository** and copy its **HTTPS** URL. In the working copy type `git remote set-url origin ` followed by the exact URL you copied from GitHub; the clone already has an `origin` that currently points at the local bundle. Run `git remote -v` to verify the destination, then `git push -u origin main`. If prompted, sign in using Git Credential Manager in your browser; never put a token in the URL or paste it in chat. Confirm on GitHub that the repository is labelled **Private** and the tracked docs are visible. Nothing has been published remotely by this package.
+
+## Other tools we will use — not required today
+
+| Tool | Purpose and when |
+|---|---|
+| MT5 desktop, MetaEditor, Strategy Tester | Included in the desktop install. MetaEditor turns `.mq5` source into a runnable `.ex5`; later we will open the exact files and compile with **F7**, and record the compile result before attaching anything. Strategy Tester replays historical data. [2](https://www.metatrader5.com/en/terminal/help/algotrading/autotrading) |
+| PowerShell, File Explorer, web browser | Included on Windows or preinstalled. Run commands, manage the folder, use the dashboard locally. |
+| [Python for Windows](https://www.python.org/downloads/windows/) | Needed for research/tooling when introduced, and for FastAPI later. We'll pin a supported version and use a project `.venv` so dependencies stay isolated. |
+| [Node.js LTS](https://nodejs.org/en/download) and npm | Later, for React + Vite. npm is the package manager shipped with Node. We'll pin a supported version and the dependency lock file at dashboard build time. |
+| SQLite | Included via Python's `sqlite3` library for the initial database; no separate database server first. |
+| [VS Code](https://code.visualstudio.com/download) (optional) | Editor for Python, React and Markdown. Use MetaEditor for native MT5 builds. |
+| MT5 mobile, authenticator app and Telegram | Later for push, dashboard two-factor and bot notifications. No bot token or 2FA setup is needed for the broker setup task. |

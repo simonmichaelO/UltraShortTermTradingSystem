@@ -1,0 +1,75 @@
+# Feasibility report — Exness and MT5
+
+**Review date: 17 November 2026.** Official public documentation is evidence of published terms and platform capabilities, not a measurement of your account. **Feasible to begin read-only demo setup. Not cleared for automated broker testing or live trading.** No Exness account was accessed by the project, and no terminal measurements have been recorded yet.
+
+## 1. Account and broker terms
+
+| Topic | Published position | Verify on your setup |
+|---|---|---|
+| MT5 desktop | Exness documents MT5 desktop login and account server selection. Its current guide notes a historical floor of build 4755 for connectivity from July 2025; install the current build instead of pinning to this floor. [2](https://get.exness.help/hc/en-us/articles/360011514572-MT5-Trading-guide-Desktop) | MT5 starts on Windows, build is logged, selected account shows `Standard`, `Demo`, `MT5`, and the terminal receives recent server quotes when markets are open. An Exness-platform-only account is not the same as an MT5 account. [3](https://get.exness.help/hc/en-us/articles/18022583206940-Exness-platform-based-trading-accounts) |
+| Demo availability | Exness says Standard, Pro, Zero and Raw Spread are available as demo account types; Standard Cent is excluded from its demo list. [1](https://get.exness.help/hc/en-us/articles/4408633634322-How-to-create-trading-accounts) | The demo form actually offers the type and MT5 platform for your Personal Area. A missing type is recorded as unavailable for that profile, not replaced silently. |
+| Hedging | Exness documents simultaneous long and short trades and margin charged on amounts exposed when one side is removed. [3](https://get.exness.help/hc/en-us/articles/360014696320-Hedged-orders) | Confirm both `ACCOUNT_MARGIN_MODE_RETAIL_HEDGING` and `ACCOUNT_HEDGE_ALLOWED`. A different mode or missing permission blocks EA entries. Later, on authorised demo only, prove independent positions and ticket-level SL, modification and close. [1](https://www.mql5.com/en/docs/constants/environment_state/accountinformation) |
+| Scalping and automation | Exness markets professional accounts for scalpers and algorithmic traders [3](https://www.exness.com/pro-accounts/) and documents ordinary EAs on MT5 [3](https://get.exness.help/hc/en-us/articles/18022583206940-Exness-platform-based-trading-accounts). The legal terms below qualify this. | Confirm the entity, agreement and operation actually allowed, including seconds-long trades, legitimate quote-based strategies, news, request-rate limits and local data collection. A successful demo fill is not proof of permission. |
+| First funding | Standard's first-deposit minimum depends on method and region. Professional accounts are published as requiring a first deposit of at least USD 200, depending on region. [2](https://get.exness.help/hc/en-us/articles/360011554840-What-is-the-minimum-amount-needed-to-start-trading) | If live readiness is ever assessed, read the actual minimums, eligible leverage and payment limits in the Personal Area. A $10 target balance is not an eligible first deposit by assumption. No funding is needed for Stage 1. |
+
+### Compliance gate: not all automation is equivalent
+
+Exness says the applicable legal entity is listed in the Personal Area footer. [2](https://get.exness.help/hc/en-us/articles/26544238207260-Execution) Do not infer the entity from geography, server label or account marketing. The [official legal index](https://www.exness.com/legal-documents/) lists separate agreements. The published [Exness (SC) Ltd agreement, 24 July 2026 /039](https://www.exness.com/cdn/media/exnesssc/exness_sc_client_agreement.pdf), Part C §2.3(A), restricts software that applies “artificial intelligence analysis to the Company’s system and/or Trading Platform.” §2.3(G) also restricts automated access to or obtaining information through the Trading Platform. §2.4 addresses stale/error-price exploitation and latency arbitrage. Similar wording appears in the indexed B.V., VG and BZ agreements reviewed. See also Part C §4.3 on sharing broker data, and Part D §4 on EAs and stops in the SC agreement. Ordinary EA support therefore does not settle the scope of the proposed automation; this is not a blanket finding that every rule-based EA is banned.
+
+Use normal MT5 UI observation first. Before automated data collection or order-capable tests against Exness, check the applicable current terms and obtain written clarification for the intended workflows. Keep ML and other uncertain broker-facing automation disabled. Offline modeling and synthetic/replay tests can be designed without contacting the broker. Do not use stale prices, off-market quotes, rate-limit bypass, scraping, or platform/error exploitation; latency is a quality/safety measurement, not a strategy input for exploiting the platform.
+
+**Template for the later broker check** (send through Exness support; record a redacted copy privately):
+
+> For my entity, can I use a native MT5 Expert Advisor that reads only quotes, symbol properties and economic calendar data via documented MT5 interfaces, stores my own data privately, and places risk-limited orders based on market movements? It would not exploit stale quotes, latency, data errors, or broker systems. Please confirm the rules for each intended use: read-only automated collection and one-year private tick retention, hedged positions, seconds-long scalps, trading around news, request/modify frequency and quotas, and whether local statistical adaptation or ML on quote data is permitted. Please indicate any differences between MT5 demo and real and identify the applicable clauses.
+
+If the answer is ambiguous or negative for a feature, stop that broker-facing workflow; retain the design for offline tests and discuss the deployment implications before changing scope. Review again against the then-current terms before any live decision. Do not send credentials, account IDs, raw quotes or private support tickets for source review.
+
+## 2. Published account conditions — not benchmark results
+
+| Account | Published spread starts at | Execution to verify | Published commission |
+|---|---:|---|---|
+| Standard | 0.2 pips | Market | No trading commission |
+| Pro | 0.1 pips | Instant (may requote); eligible account currencies can also have market execution | No trading commission |
+| Zero | 0.0 pips | Market | Instrument-specific, from USD 0.05/lot/side |
+| Raw Spread | 0.0 pips | Market | Instrument-specific, up to USD 3.50/lot/side |
+
+Sources: Exness account comparison [7](https://get.exness.help/hc/en-us/articles/360013782240-Trading-account-types), execution types [4](https://get.exness.help/hc/en-us/articles/360017885880-Available-order-and-execution-types), Pro [2](https://get.exness.help/hc/en-us/articles/17537794560540-Pro-account), Zero [5](https://get.exness.help/hc/en-us/articles/17537782878236-Zero-account), and Raw Spread [5](https://get.exness.help/hc/en-us/articles/17537767270556-Raw-Spread-account). Exness says that where applicable, it charges both sides' commission at opening. Reconcile the actual booked fees by deal and position rather than adding a second exit fee to a round-trip charge. [3](https://get.exness.help/hc/en-us/articles/360012007919-Are-trading-accounts-charged-a-commission-fee)
+
+Quoted “from” spreads are advertised starting points, not averages or promises. Exness's web averages may be the previous trading day's spreads in pips, whereas MT5 shows current spread in points; store native point size, tick size, bid/ask and currency, and normalize comparisons. [10](https://get.exness.help/hc/en-us/articles/6214438375442-Why-is-spread-different-between-the-website-and-MetaTrader) Exness publishes example name variants such as `EURUSDm` and `XAUUSDm` for Standard, and unsuffixed or `r`/`z` variants on some Raw Spread/Zero symbols. Read and validate exact mappings in the account; do not choose the first prefix match. [1](https://get.exness.help/hc/en-us/articles/360014560220-Account-type-suffixes)
+
+## 3. Eight-instrument contract inventory
+
+The public forex/commodity specifications and glossary give the following baselines. Minimum **volume** and **volume step** are different; the latter is not asserted in this table. Pip size is a quoting convention, not necessarily the terminal point size or the smallest tradable price increment. Sources: [1](https://get.exness.help/hc/en-us/articles/17854278192284-Forex) [2](https://get.exness.help/hc/en-us/articles/17854173039388-Commodities) [3](https://get.exness.help/hc/en-us/articles/360014740179-Common-trading-terms) [1](https://www.exness.com/contractspecifications/).
+
+| Canonical symbol | Units per lot, published | Pip size, published | Minimum lot, published | Actual Standard demo specification |
+|---|---:|---:|---:|---|
+| EURUSD | 100,000 EUR | 0.0001 | 0.01 | Pending |
+| GBPUSD | 100,000 GBP | 0.0001 | 0.01 | Pending |
+| USDJPY | 100,000 USD | 0.01 | 0.01 | Pending |
+| USDCHF | 100,000 USD | 0.0001 | 0.01 | Pending |
+| USDCAD | 100,000 USD | 0.0001 | 0.01 | Pending |
+| AUDUSD | 100,000 AUD | 0.0001 | 0.01 | Pending |
+| NZDUSD | 100,000 NZD | 0.0001 | 0.01 | Pending |
+| XAUUSD | 100 troy ounces | 0.01 | 0.01 | Pending |
+
+Gold's published XAUUSD commission is USD 3.50 on Raw Spread and USD 5.50 on Zero per lot per side. Verify account/instrument-specific rates in the [contract specification table](https://www.exness.com/contractspecifications/) or Personal Area, and later in demo deal records. Do not substitute XAUUSD247 for XAUUSD. [2](https://get.exness.help/hc/en-us/articles/17854173039388-Commodities)
+
+**Terminal evidence still needed:** server-assigned name and availability; minimum/maximum lot and step; contract size; point, tick size and tick value; minimum stop distance and freeze level (where updates can be blocked); trade mode and allowed types; execution/filling and expiry settings; leverage and margin currencies; quote/trade sessions; spread distribution; commission and swap. Use the [blank inventory](Testing/DemoSymbolInventory.csv). A single Market Watch reading does not establish typical costs or slippage.
+
+**Margin is not stop-loss risk.** Leverage can lower the margin reserved to open a trade without reducing the money lost per unit of price movement. Exness's higher margin requirements can apply around news and market breaks; the dynamics can also affect an exit that unhedges the other position. Published HMR figures/timing are not immutable inputs to the EA. Verify actual account rules, current preflight and stress scenarios. [3](https://get.exness.help/hc/en-us/articles/20618327917596-Higher-Margin-Requirements-HMR) [3](https://get.exness.help/hc/en-us/articles/360014696320-Hedged-orders)
+
+**Illustration, not a proposed trade:** At $10 USD equity, selected limits allow at most $1 calculated risk for one new trade, $4 modeled aggregate risk, and $7 used margin. At the published XAUUSD minimum lot, one ounce is exposed; a $1 adverse move from entry already consumes $1 before any additional costs or fill deterioration. A valid structural stop that does not fit means **no order**. Loss from gaps or poor fills can exceed the modeled limit. Neither the $10 balance nor the +1,500% target implies sustainable returns.
+
+## 4. Clock, news and execution boundaries
+
+- **Clock:** Exness publishes UTC+0 server time, but commercial rollover is normally 21:00 UTC in summer or 22:00 UTC in winter. The EA's selected daily reset is **00:00 broker-server time**, distinct from commercial rollover. Confirm the actual demo clock and boundary with observations and exercise missing quotes, restarts and weekend transitions. London/New York daylight saving and symbol session calendars are handled separately. [1](https://get.exness.help/hc/en-us/articles/4405235684498-Instrument-trading-hours)
+- **Calendar:** MT5's Economic Calendar APIs use trade-server time and cannot be called inside Strategy Tester. Check desktop visibility, coverage, a recent timestamp and API freshness separately; an empty event interval does not itself tell us whether the feed works. Use timestamped point-in-time event fixtures for replay, not values that were revised later. Default when health cannot be verified is to alert and withhold new entries, not to abandon protection. [1](https://www.mql5.com/en/book/advanced/calendar)
+- **Ticks and throughput:** Chart `OnTick` receives only that chart's symbol and events can combine. The architecture uses per-symbol MT5 tick retrieval and bounded buffers. Quote direction is an inference from this broker's feed, not institutional order flow or microsecond execution. Validate acquisition delay, gaps, storage throughput and CPU load with all eight symbols. See [OnTick](https://www.mql5.com/en/docs/event_handlers/ontick) and [CopyTicks](https://www.mql5.com/en/docs/series/copyticks).
+- **Slippage and protection:** Price deviation is not a guaranteed cap for every execution mode; market fills can differ from the observed price and stops can gap. Broker-held stops stay active independently if confirmed and supported; live trailing, partial exits, new stop placement and emergency cancellation/closure need a functioning terminal and broker connection. A dashboard link loss is not the same as a broker link loss. [4](https://www.mql5.com/en/docs/constants/structures/mqltraderequest) [3](https://www.metatrader5.com/en/terminal/help/trading/performing_deals)
+- **Evidence:** Demo uses virtual funds and documents similar conditions, but it cannot determine real-money fill quality or whether a strategy will survive realistic cost and latency. Evaluate on broker-provided historical ticks where available, check coverage, and validate forward in demo and stressed replay before any discussion of a funded release. [1](https://get.exness.help/hc/en-us/articles/360013191919-Real-and-demo-accounts) [1](https://www.metatrader5.com/en/terminal/help/algotrading/test_preparation)
+
+## 5. Cost and readiness
+
+Windows use of MT5 desktop, MetaEditor and local Strategy Tester plus Git, Python/FastAPI, React/Vite and SQLite do not require a new software licence purchase. The intended private GitHub repository can start on GitHub Free. [1](https://docs.github.com/en/get-started/learning-about-github/githubs-plans) Demo needs no trading capital or hosted AI. Alerts can initially use ordinary dashboard, MT5 push and Telegram usage; these are not prerequisites for placing a safe demo test order later.
+
+Potential later costs: reliable power/Internet, off-machine storage and backups, optional tick/news data if proven necessary and licensed, a Windows VPS capable of running both MT5 and the local stack, optional secure remote-access infrastructure, and the deposit/transaction costs of any explicitly approved live account. A terminal-only hosted MT5 instance is not automatically a host for FastAPI. Measure storage consumption for the one-year detailed-tick requirement before choosing capacity. No purchases are required today.
