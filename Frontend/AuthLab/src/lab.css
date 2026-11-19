@@ -153,9 +153,7 @@ h1,h2,p,ol,ul{margin:0}
  .workspace-intro{align-items:flex-start;flex-direction:column}
  .lab-history li{align-items:flex-start}
 }
-.tab-only-option{display:grid;min-width:0;gap:7px;margin-top:17px;padding-top:14px;border-top:1px solid var(--line)}
-.tab-only-option p,.tab-session-note{color:var(--soft);font-size:12px}
-.tab-only-option p strong,.tab-session-note strong{color:var(--text)}
-.tab-only-option .lab-text-button{justify-self:start;min-height:34px;margin:0}
+.tab-session-note{color:var(--soft);font-size:12px}
+.tab-session-note strong{color:var(--text)}
 .tab-session-note{display:flex;gap:8px;align-items:flex-start;margin:0 0 13px;padding:9px 10px;border:1px solid #3b4932;border-radius:7px;background:#20281d}
 .tab-session-note svg{color:var(--lime);margin-top:2px}

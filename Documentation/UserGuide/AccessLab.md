@@ -4,7 +4,7 @@
 
 ## First check in Arena
 
-Open the **Tickframe sign-in lab** Live Preview. Choose **Open sign-in lab**, then **Create test account**. You should see **Set up your authenticator**. This is the first checkpoint. Report only whether that heading appeared, or the words of an error message. Never send your password, QR code, setup key, one-time code or a screenshot showing any of them.
+Open the new **Tickframe sign-in lab v0.3.2** Live Preview. Choose **Open sign-in lab**, then **Create test account without cookies**. You should see **Set up your authenticator**. This is the first checkpoint. Report only whether that heading appeared, or the words of an error message. Never send your password, QR code, setup key, one-time code or a screenshot showing any of them.
 
 ## What comes next
 
@@ -16,7 +16,7 @@ Open the **Tickframe sign-in lab** Live Preview. Choose **Open sign-in lab**, th
 
 ## If something doesn’t look right
 
-- **Setup cookie warning in Arena:** refresh the **Tickframe sign-in lab** preview and click **Create test account without cookies**. If the welcome screen appears, click **Open sign-in lab** first. Look for **Set up your authenticator**. You don’t need to change browser settings. Keep that preview open: refreshing or closing it loses the tab-only setup or sign-in. If you already paired a test account and privately saved its credentials, **Sign in without cookies** uses that account with both factors.
+- **Setup cookie warning in Arena:** close the old preview and open **Tickframe sign-in lab v0.3.2**. The hosted form now has one account-creation button, **Create test account without cookies**. It does not attempt to use cookies. Keep the preview open: refreshing or closing it loses the tab-only setup or sign-in. If you already paired a test account and privately saved its credentials, **I have test credentials** starts a new two-factor sign-in.
 - **Code rejected:** wait for a fresh code, check the right entry and ensure your device’s date and time are automatic. After repeated failures, wait as instructed; if setup or the sign-in challenge expired, start that step again.
 - **Test account stopped working:** account expiry/restart is intentional. Create a new temporary identity in the lab. Do not type a broker or personal password as a workaround.
 - **You see the charts and Overview instead:** that's the regular Tickframe preview. Switch to the separate **Tickframe sign-in lab** Live Preview.

@@ -4,13 +4,14 @@ import os
 from pathlib import Path
 
 from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.lab_auth import LabMode, create_router
 from app.security.lab import LabError, LabState
 
 LAB_DIST = Path(__file__).resolve().parents[2] / "Frontend" / "AuthLab" / "dist"
+UI_PROFILE_PLACEHOLDER = "__TICKFRAME_LAB_PROFILE__"
 ARENA_FRAMES = "'self' https://arena.ai https://*.arena.ai https://lmarena.ai https://*.lmarena.ai"
 CSP = (
     "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
@@ -21,7 +22,7 @@ CSP = (
 def create_lab_app(*, mode: LabMode, frontend_dir: Path | None = None, state: LabState | None = None) -> FastAPI:
     if not isinstance(mode, LabMode):
         raise ValueError("Choose an explicit sign-in lab mode.")
-    app = FastAPI(title="Tickframe Access Lab", version="0.3.1", docs_url=None, redoc_url=None,
+    app = FastAPI(title="Tickframe Access Lab", version="0.3.2", docs_url=None, redoc_url=None,
                   openapi_url=None, redirect_slashes=False)
     app.include_router(create_router(state if state is not None else LabState(), mode))
 
@@ -49,10 +50,16 @@ def create_lab_app(*, mode: LabMode, frontend_dir: Path | None = None, state: La
 
     @app.get("/")
     @app.get("/lab")
-    async def render_lab():
-        if frontend_dir is None or not (frontend_dir / "index.html").is_file():
+    def render_lab():
+        index = frontend_dir / "index.html" if frontend_dir is not None else None
+        if index is None or not index.is_file():
             return PlainTextResponse("Build the Access Lab UI before opening this page.", status_code=503)
-        return FileResponse(frontend_dir / "index.html", media_type="text/html")
+        html = index.read_text(encoding="utf-8")
+        if html.count(UI_PROFILE_PLACEHOLDER) != 1:
+            return PlainTextResponse("Build the current Access Lab UI and reload the preview.", status_code=503)
+        # The server chooses the UI profile. Do not guess from the browser's
+        # address: the hosted preview can be rewritten by its outer proxy.
+        return HTMLResponse(html.replace(UI_PROFILE_PLACEHOLDER, mode.value, 1))
 
     if frontend_dir is not None and (frontend_dir / "assets").is_dir():
         app.mount("/assets", StaticFiles(directory=frontend_dir / "assets"), name="lab-assets")

@@ -1,12 +1,12 @@
 # Ultra-short-term MT5 trading system
 
-**Current milestone: Tickframe Access Lab v0.3.1 · Regular web preview v0.2 · Stage 1 broker checks pending**
+**Current milestone: Tickframe Access Lab v0.3.2 · Regular web preview v0.2 · Stage 1 broker checks pending**
 
 Tickframe is the planned web console for the native MT5 trading engine. The React + Vite preview uses prewritten market examples. It now runs with a read-only FastAPI status endpoint; there is no running EA, MT5 bridge, database, or order connection. A separate Access Lab tests passwords and authenticator codes with disposable, synthetic identities only. Do not deposit or place an order for setup.
 
 ## Start here
 
-Open **Tickframe sign-in lab** in Arena for the [test sign-in checkpoint](Documentation/UserGuide/AccessLab.md). No software setup is needed to open the lab. If the preview cannot keep cookies, use **Create test account without cookies**. The [Access Lab QA handoff](Documentation/Testing/AuthLabChecks.md) records the tests and remaining gates.
+Open **Tickframe sign-in lab** in Arena for the [test sign-in checkpoint](Documentation/UserGuide/AccessLab.md). No software setup is needed to open the lab. The hosted lab uses **Create test account without cookies** by default; leave the preview open while testing. The [Access Lab QA handoff](Documentation/Testing/AuthLabChecks.md) records the tests and remaining gates.
 
 1. Try **Tickframe trading dashboard** in the Arena preview. [Frontend README](Frontend/README.md) has the first click-through task and optional Windows build instructions. The WebAuthLab source ZIP includes this project plus the portable Git history and both previews’ instructions.
 2. See the [web status test report](Documentation/Testing/WebStatusChecks.md) for verified behaviour and limitations, and the [Backend guide](Backend/README.md) to run the combined preview. Web work can proceed independently of Windows MT5 setup; no trading gate has changed.

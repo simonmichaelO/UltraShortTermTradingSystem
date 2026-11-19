@@ -3,6 +3,9 @@ import { expect, test } from '@playwright/test';
 
 const API = '/api/v1/auth';
 const WORKSPACE = '/api/v1/lab/workspace';
+const HOSTED = Boolean(process.env.AUTH_LAB_TLS_TEST_PORT);
+const PROFILE_API = HOSTED ? `${API}/tab` : API;
+const CREATE_LABEL = HOSTED ? 'Create test account without cookies' : 'Create test account';
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
 // Independent RFC 6238/4226 calculation for a key generated inside each test.
@@ -29,8 +32,8 @@ function totp(secret, step = Math.floor(Date.now() / 30_000)) {
 }
 
 async function createIdentity(page) {
-  const response = page.waitForResponse(res => new URL(res.url()).pathname === API + '/enroll' && res.request().method() === 'POST');
-  await page.getByRole('button', { name: 'Create test account', exact: true }).click();
+  const response = page.waitForResponse(res => new URL(res.url()).pathname === PROFILE_API + '/enroll' && res.request().method() === 'POST');
+  await page.getByRole('button', { name: CREATE_LABEL, exact: true }).click();
   const result = await response;
   expect(result.status()).toBe(201);
   await expect(page.getByRole('heading', { name: 'Set up your authenticator' })).toBeVisible();
@@ -58,7 +61,8 @@ async function submitFreshCode(page, setup, pairStep) {
   await expect(page.getByRole('heading', { name: 'Test workspace.' })).toBeVisible();
 }
 
-test('lab verifies password then a fresh code, persists on reload and signs out', async ({ page: labPage, context }) => {
+test('loopback cookie sign-in requires two checks, persists on reload and signs out', async ({ page: labPage, context }) => {
+  test.skip(HOSTED, 'The hosted UI uses tab-only sessions.');
   await labPage.goto('/');
   await expect(labPage.getByRole('heading', { name: /Test your two-step sign-in/ })).toBeVisible();
   await labPage.getByRole('link', { name: 'Open sign-in lab' }).click();
@@ -95,7 +99,7 @@ test('lab verifies password then a fresh code, persists on reload and signs out'
   await expect(labPage.getByRole('status')).toContainText('Signed out.');
   expect(await labPage.evaluate(path => fetch(path).then(response => response.status), WORKSPACE)).toBe(401);
   await labPage.reload();
-  await expect(labPage.getByRole('button', { name: 'Create test account', exact: true })).toBeVisible();
+  await expect(labPage.getByRole('button', { name: CREATE_LABEL, exact: true })).toBeVisible();
 });
 
 test('mobile lab keeps credential and manual authenticator setup in view', async ({ page }) => {
@@ -111,18 +115,21 @@ test('mobile lab keeps credential and manual authenticator setup in view', async
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expect(page.getByLabel('Six-digit code')).toHaveAttribute('inputmode', 'numeric');
   await page.getByRole('button', { name: 'Start over' }).click();
-  await expect(page.getByRole('button', { name: 'Create test account', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: CREATE_LABEL, exact: true })).toBeVisible();
   await expect(page.getByRole('img', { name: 'QR code for your test authenticator' })).toHaveCount(0);
 });
 
-test('unavailable session check keeps the workspace closed and can recover', async ({ page }) => {
-  await page.route('**/api/v1/lab/workspace', route => route.fulfill({ status: 503, json: { error: 'busy' } }));
+test('an unavailable lab keeps the workspace closed and setup can recover', async ({ page }) => {
+  const path = HOSTED ? '**/api/v1/auth/tab/enroll' : '**/api/v1/lab/workspace';
+  await page.route(path, route => route.fulfill({ status: 503, json: { error: 'busy' } }));
   await page.goto('/lab');
-  await expect(page.getByRole('heading', { name: 'The lab is unavailable' })).toBeVisible();
+  if (HOSTED) await page.getByRole('button', { name: CREATE_LABEL, exact: true }).click();
+  else await expect(page.getByRole('heading', { name: 'The lab is unavailable' })).toBeVisible();
+  await expect(page.getByRole('alert')).toContainText('The lab is busy.');
   await expect(page.getByRole('heading', { name: 'Test workspace.' })).toHaveCount(0);
-  await page.unroute('**/api/v1/lab/workspace');
-  await page.getByRole('button', { name: 'Retry session check' }).click();
-  await expect(page.getByRole('button', { name: 'Create test account', exact: true })).toBeVisible();
+  await page.unroute(path);
+  if (!HOSTED) await page.getByRole('button', { name: 'Retry session check' }).click();
+  await createIdentity(page);
 });
 
 test('the visible workspace closes when a background session check shows expiry', async ({ page }) => {
@@ -132,7 +139,7 @@ test('the visible workspace closes when a background session check shows expiry'
   const step = await pairIdentity(page, setup);
   await submitCorrectPassword(page);
   await submitFreshCode(page, setup, step);
-  await page.route('**/api/v1/auth/session', route => route.fulfill({ status: 401, json: { error: 'signed_out' } }));
+  await page.route(`**${PROFILE_API}/session`, route => route.fulfill({ status: 401, json: { error: 'signed_out' } }));
   await page.clock.fastForward(16_000);
   await expect(page.getByRole('heading', { name: 'Enter your test credentials' })).toBeVisible();
   await expect(page.getByRole('alert')).toContainText('The test session ended.');
@@ -140,16 +147,17 @@ test('the visible workspace closes when a background session check shows expiry'
 });
 
 
-test('missing setup cookie is caught before secrets are displayed', async ({ page }) => {
+test('loopback flags a missing setup cookie before showing secrets', async ({ page }) => {
+  test.skip(HOSTED, 'The hosted UI never probes for a setup cookie.');
   await page.route('**/api/v1/auth/setup', route => route.fulfill({ status: 401, json: { error: 'setup_cookie_unavailable' } }));
   await page.goto('/lab');
-  await page.getByRole('button', { name: 'Create test account', exact: true }).click();
+  await page.getByRole('button', { name: CREATE_LABEL, exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('This browser did not keep the test setup cookie.');
   await expect(page.getByRole('img', { name: 'QR code for your test authenticator' })).toHaveCount(0);
 });
 
-test('Arena iframe mode keeps its own partitioned session with third-party cookies blocked', async ({ page, context, baseURL }) => {
-  test.skip(!process.env.AUTH_LAB_TLS_TEST_PORT, 'Requires the local TLS replay of the Arena host.');
+test('the hosted iframe works without third-party cookies and does not share a session with another tab', async ({ page, context, baseURL }) => {
+  test.skip(!HOSTED, 'Requires the local TLS replay of the Arena host.');
   const parent = 'https://preview.arena.ai/tickframe-local-test';
   await context.route(parent, route => route.fulfill({
     contentType: 'text/html', body: `<iframe title="Preview" src="${baseURL}/"></iframe>`,
@@ -157,8 +165,8 @@ test('Arena iframe mode keeps its own partitioned session with third-party cooki
   await page.goto(parent);
   const frame = page.frameLocator('iframe[title="Preview"]');
   await frame.getByRole('link', { name: 'Open sign-in lab' }).click();
-  const received = page.waitForResponse(res => new URL(res.url()).pathname === API + '/enroll');
-  await frame.getByRole('button', { name: 'Create test account', exact: true }).click();
+  const received = page.waitForResponse(res => new URL(res.url()).pathname === PROFILE_API + '/enroll');
+  await frame.getByRole('button', { name: CREATE_LABEL, exact: true }).click();
   const res = await received;
   expect(res.status()).toBe(201);
   const setup = await res.json();
@@ -174,35 +182,39 @@ test('Arena iframe mode keeps its own partitioned session with third-party cooki
   await expect(frame.getByRole('heading', { name: 'Test workspace.' })).toBeVisible();
   const direct = await context.newPage();
   await direct.goto(`${baseURL}/lab`);
-  await expect(direct.getByRole('button', { name: 'Create test account', exact: true })).toBeVisible();
+  await expect(direct.getByRole('button', { name: CREATE_LABEL, exact: true })).toBeVisible();
   await direct.close();
   await frame.getByRole('button', { name: 'Sign out', exact: true }).click();
   await expect(frame.getByRole('status')).toContainText('Signed out.');
 });
 
-test('cookie-free retry opens setup and completes two-factor sign-in without browser cookies', async ({ page, context }) => {
-  test.skip(!process.env.AUTH_LAB_TLS_TEST_PORT, 'Tab-only mode is only enabled in the TLS preview.');
+test('hosted form has one no-cookie creation button and completes two-factor sign-in', async ({ page, context }) => {
+  test.skip(!HOSTED, 'Hosted mode is exercised in the separate local HTTPS test.');
+  const cookieRequests = [];
+  const capture = request => {
+    const path = new URL(request.url()).pathname;
+    if (path === WORKSPACE || (path.startsWith(API + '/') && !path.startsWith(PROFILE_API + '/'))) cookieRequests.push(path);
+  };
+  page.on('request', capture);
   await page.route('**/api/v1/auth/setup', route => route.fulfill({ status: 401, json: { error: 'setup_cookie_unavailable' } }));
   await page.goto('/lab');
-  await page.getByRole('button', { name: 'Create test account', exact: true }).click();
-  await expect(page.getByRole('alert')).toContainText('Choose Create test account without cookies');
-  await context.clearCookies();
-  const issued = page.waitForResponse(res => new URL(res.url()).pathname === `${API}/tab/enroll`);
-  await page.getByRole('button', { name: 'Create test account without cookies', exact: true }).click();
-  const response = await issued;
-  expect(response.status()).toBe(201);
-  expect(await response.headerValue('set-cookie')).toBe(null);
-  const setup = await response.json();
-  await expect(page.getByRole('heading', { name: 'Set up your authenticator' })).toBeVisible();
+  await expect(page.locator('meta[name="tickframe-lab-profile"]')).toHaveAttribute('content', 'arena');
+  await expect(page.getByText('ISOLATED PREVIEW · v0.3.2')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Create test account', exact: true })).toHaveCount(0);
+  const setup = await createIdentity(page);
   await expect(page.getByText('This tab only.', { exact: true })).toBeVisible();
   const step = await pairIdentity(page, setup);
   await submitCorrectPassword(page);
-  expect(await page.evaluate(path => fetch(path).then(res => res.status), WORKSPACE)).toBe(401);
+  await expect(page.getByRole('heading', { name: 'Test workspace.' })).toHaveCount(0);
+  await page.getByLabel('Six-digit code').fill(totp(setup.manual_key, step));
+  await page.getByRole('button', { name: 'Verify and sign in' }).click();
+  await expect(page.getByRole('alert')).toContainText('Try the newest six-digit code.');
   await submitFreshCode(page, setup, step);
   await expect(page.getByText('Locked', { exact: true })).toBeVisible();
   expect((await context.cookies(page.url())).length).toBe(0);
   expect(await page.evaluate(() => localStorage.length === 0 && sessionStorage.length === 0)).toBe(true);
   await page.reload();
-  await expect(page.getByRole('button', { name: 'Sign in without cookies', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: CREATE_LABEL, exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Test workspace.' })).toHaveCount(0);
+  expect(cookieRequests).toEqual([]);
 });

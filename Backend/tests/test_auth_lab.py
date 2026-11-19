@@ -6,7 +6,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 from app.api.lab_auth import LabMode
-from app.auth_lab import create_lab_app, from_environment
+from app.auth_lab import UI_PROFILE_PLACEHOLDER, create_lab_app, from_environment
 from app.main import create_app
 from app.security.lab import ACCOUNT_TTL, CHALLENGE_TTL, SESSION_IDLE_TTL, SESSION_TTL, SETUP_TTL, LabState
 
@@ -15,6 +15,7 @@ API = "/api/v1/auth"
 WORKSPACE = "/api/v1/lab/workspace"
 ORIGIN = "http://127.0.0.1:5175"
 COOKIE = "tf-loopback-lab-"
+LAB_META = f'<meta name="tickframe-lab-profile" content="{UI_PROFILE_PLACEHOLDER}">'
 
 
 @dataclass
@@ -289,7 +290,7 @@ async def test_invalid_inputs_do_not_echo_submitted_values(client):
 
 
 async def test_hosted_mode_cookies_and_launch_page_headers(tmp_path):
-    (tmp_path / "index.html").write_text("<!doctype html><title>Lab</title>", encoding="utf-8")
+    (tmp_path / "index.html").write_text(f"<!doctype html>{LAB_META}<title>Lab</title>", encoding="utf-8")
     hosted = create_lab_app(mode=LabMode.ARENA, frontend_dir=tmp_path)
     origin = "https://5174-test-sandbox.e2b.app"
     async with connected(hosted, origin=origin) as browser:
@@ -297,6 +298,7 @@ async def test_hosted_mode_cookies_and_launch_page_headers(tmp_path):
         assert landing.status_code == 200 and "frame-ancestors" not in landing.headers["content-security-policy"]
         form = await browser.get("/lab")
         assert form.status_code == 200 and "x-frame-options" not in form.headers
+        assert LAB_META.replace(UI_PROFILE_PLACEHOLDER, "arena") in form.text
         assert "frame-ancestors 'self' https://arena.ai" in form.headers["content-security-policy"]
         created = await browser.post(API + "/enroll", json={})
         cookie = created.headers["set-cookie"].lower()
@@ -311,11 +313,12 @@ async def test_hosted_mode_cookies_and_launch_page_headers(tmp_path):
 
 
 async def test_loopback_form_refuses_framing(tmp_path):
-    (tmp_path / "index.html").write_text("<!doctype html><title>Lab</title>", encoding="utf-8")
+    (tmp_path / "index.html").write_text(f"<!doctype html>{LAB_META}<title>Lab</title>", encoding="utf-8")
     local = create_lab_app(mode=LabMode.LOOPBACK, frontend_dir=tmp_path)
     async with connected(local) as browser:
         form = await browser.get("/lab")
         assert form.headers["x-frame-options"] == "DENY"
+        assert LAB_META.replace(UI_PROFILE_PLACEHOLDER, "loopback") in form.text
         assert "frame-ancestors 'none'" in form.headers["content-security-policy"]
 
 
@@ -410,3 +413,17 @@ async def test_tab_challenge_still_expires(client, clock):
         clock.tick(CHALLENGE_TTL)
         result = await browser.post(tab + "/totp", json={"handle": challenge, "code": code_at(setup, clock)})
         assert result.json() == {"error": "challenge_expired"}
+
+
+async def test_preview_profile_is_from_server_not_the_outer_address(tmp_path):
+    index = tmp_path / "index.html"
+    index.write_text(f"<!doctype html>{LAB_META}<title>Lab</title>", encoding="utf-8")
+    hosted = create_lab_app(mode=LabMode.ARENA, frontend_dir=tmp_path)
+    async with connected(hosted, origin="https://outer-preview.example.invalid") as browser:
+        home = await browser.get("/lab", params={"mode": "loopback"})
+        assert home.status_code == 200
+        assert LAB_META.replace(UI_PROFILE_PLACEHOLDER, "arena") in home.text
+        # Metadata only controls the form. It does not relax the API host guard.
+        assert (await browser.post(API + "/tab/enroll", json={})).status_code == 403
+        index.write_text("<!doctype html><title>Old build</title>", encoding="utf-8")
+        assert (await browser.get("/lab")).status_code == 503

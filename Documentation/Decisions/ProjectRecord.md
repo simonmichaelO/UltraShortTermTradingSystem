@@ -3,12 +3,12 @@
 | Field | Current value |
 |---|---|
 | Date | 17 November 2026 |
-| Stage | Early web build: regular preview confirmed by operator; disconnected Access Lab v0.3.1 adds an optional tab-only path after the operator hit a cookie error. Stage 1 Windows/broker evidence is pending. |
+| Stage | Early web build: regular preview confirmed by operator; disconnected Access Lab v0.3.2 defaults to tab-only sessions after repeated hosted cookie errors. Stage 1 Windows/broker evidence is pending. |
 | Starter version | `stage1-v0.1` (documentation and non-executable scaffold) |
-| EA, API and dashboard versions | EA: not started. Regular preview `web-status-v0.2`; separate `web-auth-lab-v0.3.1`, test identities only. Both use synthetic data. |
-| Source control | Local Git on `main` with Stage 1, web preview, web status, Access Lab and its cookie-compatibility patch. No remote created or pushed. |
+| EA, API and dashboard versions | EA: not started. Regular preview `web-status-v0.2`; separate `web-auth-lab-v0.3.2`, test identities only. Both use synthetic data. |
+| Source control | Local Git on `main` with Stage 1, web preview, web status, Access Lab and its cookie-compatibility patches. No remote created or pushed. |
 | Requirements | [Master specification](../MasterSpecification.md), preserved separately from provisional design choices |
-| Current practical task | The operator reported the setup cookie error in Arena. Refresh **Tickframe sign-in lab** and use **Create test account without cookies**; await **Set up your authenticator** confirmation. |
+| Current practical task | The operator reported the cookie error again. Open the **new Tickframe sign-in lab v0.3.2** preview, then **Create test account without cookies**. Await **Set up your authenticator** confirmation. |
 
 ## Decisions and scope
 
@@ -25,6 +25,13 @@
 | D-009 | Early web design | Serve the fixtures UI and versioned, read-only status from a single origin. Treat API availability and MT5 connectivity separately. Defer authentication, SQLite, any inbox/outbox protocol and actual trading features. |
 | D-010 | Approved early web work | Build password + TOTP in an isolated, test-only lab. Keep v0.2 and its browser preferences intact. Expire lab identities; no production accounts, database, broker link or order path. |
 | D-011 | Test-only compatibility | When the hosted preview does not return a setup cookie, offer a separate, opt-in tab-memory transport. Both factors and role checks remain mandatory; no change to the cookie flow, local-only lab or regular dashboard. |
+| D-012 | Hosted preview default | Make tab-only sign-in the sole hosted UI path; select the profile in the served HTML and do not use the browser hostname to decide. Keep loopback cookie auth and all factor, expiry and origin checks. |
+
+## Access Lab hosted default · v0.3.2
+
+**Files updated:** `Backend/app/auth_lab.py`, `Backend/tests/test_auth_lab.py`, `Frontend/AuthLab/index.html`, `Frontend/AuthLab/src/{AuthLab.jsx,lab.css}`, `Frontend/AuthLab/tests/lab.spec.js`, `README.md`, `Backend/AuthLab.md`, `Documentation/UserGuide/AccessLab.md`, `Documentation/Testing/AuthLabChecks.md` and this record. No EA, risk, regular dashboard or lab authentication policy changes.
+
+The second operator report still said the setup cookie was unavailable. The source of that repeated path is not confirmed. The new hosted form never calls the cookie transport; the server specifies its profile in the HTML and the build is on a fresh preview origin. The [v0.3.2 test results](../Testing/AuthLabChecks.md#hosted-default-patch--v032) were obtained locally; await the operator’s retry in the new preview before continuing.
 
 ## Access Lab cookie compatibility · v0.3.1
 
@@ -32,7 +39,7 @@
 
 **Runtime files changed:** `Backend/app/{auth_lab.py,api/lab_auth.py,security/lab.py}` and `Frontend/AuthLab/src/{AuthLab.jsx,auth-api.js,lab.css}`. **Tests updated:** `Backend/tests/test_auth_lab.py` and `Frontend/AuthLab/tests/lab.spec.js`. **Docs updated:** `README.md`, `Backend/AuthLab.md`, `Documentation/UserGuide/AccessLab.md`, `Documentation/Testing/AuthLabChecks.md`, and this record. The previous v0.3 tag and source archive remain unchanged.
 
-The new opt-in hosted transport keeps opaque expiring handles in the current page’s memory; no need to modify cookie settings. A password challenge still cannot open the workspace. See the [patch verification](../Testing/AuthLabChecks.md#cookie-compatibility-patch--v031) and [user retry](../UserGuide/AccessLab.md#if-something-doesnt-look-right). User confirmation of the retry is pending.
+The new opt-in hosted transport keeps opaque expiring handles in the current page’s memory; no need to modify cookie settings. A password challenge still cannot open the workspace. See the [patch verification](../Testing/AuthLabChecks.md#cookie-compatibility-patch--v031) and [user retry](../UserGuide/AccessLab.md#if-something-doesnt-look-right). The operator still reported a cookie error after this release; see v0.3.2 above.
 
 ## Access Lab milestone · v0.3
 
@@ -92,6 +99,6 @@ The setup guide leads into the checklist. The checklist obtains the account evid
 
 ## Next and independent review
 
-The operator confirmed the v0.2 web status. Next, retry account creation with the v0.3.1 tab-only button before proceeding with the test sign-in walkthrough. Secure operational identity/config storage, account recovery, permissions and real deployment/security review remain blocked on later requirements and evidence. No broker data or engine command path is enabled. Stage 1 broker work can resume separately: Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git. Broker-facing stages remain blocked until their gates pass.
+The operator confirmed the v0.2 web status. Next, retry account creation in the new v0.3.2 hosted preview before proceeding with the test sign-in walkthrough. Secure operational identity/config storage, account recovery, permissions and real deployment/security review remain blocked on later requirements and evidence. No broker data or engine command path is enabled. Stage 1 broker work can resume separately: Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git. Broker-facing stages remain blocked until their gates pass.
 
-Retain the Git milestones and clean WebAuthLab v0.3.1 source archive. For independent review, share the tracked `Frontend/` and `Backend/` files (including dependencies, tests, assets and READMEs) plus `Documentation/` and root repository files; alternatively share the clean bundle. Ignore `dist/`, `.venv/`, `node_modules/`, and generated test output. No native trading source exists yet. Do not share passwords, tokens, personal data, broker quote files, detailed trade exports, private support correspondence or runtime database contents. The archive is not evidence of an independent review.
+Retain the Git milestones and clean WebAuthLab v0.3.2 source archive. For independent review, share the tracked `Frontend/` and `Backend/` files (including dependencies, tests, assets and READMEs) plus `Documentation/` and root repository files; alternatively share the clean bundle. Ignore `dist/`, `.venv/`, `node_modules/`, and generated test output. No native trading source exists yet. Do not share passwords, tokens, personal data, broker quote files, detailed trade exports, private support correspondence or runtime database contents. The archive is not evidence of an independent review.
