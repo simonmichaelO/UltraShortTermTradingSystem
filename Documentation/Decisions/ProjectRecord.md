@@ -3,12 +3,12 @@
 | Field | Current value |
 |---|---|
 | Date | 17 November 2026 |
-| Stage | Early web build: preview controls confirmed by operator; read-only status milestone implemented. Stage 1 Windows/broker evidence is pending. |
+| Stage | Early web build: preview controls and hosted Web API status confirmed by the operator. Stage 1 Windows/broker evidence is pending. |
 | Starter version | `stage1-v0.1` (documentation and non-executable scaffold) |
 | EA, API and dashboard versions | EA: not started. Combined web preview: `web-status-v0.2`, API contract v1, trading fixtures only. |
 | Source control | Local Git on `main` with Stage 1, web preview and web status milestones. No remote created or pushed. |
 | Requirements | [Master specification](../MasterSpecification.md), preserved separately from provisional design choices |
-| Current practical task | Refresh the hosted preview and confirm **Trading status → Web API: Online** while live entries remain locked. |
+| Current practical task | Web status check passed: the operator saw **Web API → Online**. Await approval to begin test-only sign-in and two-factor work. |
 
 ## Decisions and scope
 
@@ -30,7 +30,7 @@
 
 **Files updated:** `Backend/README.md`, both front-end package metadata files, `Frontend/README.md`, `Frontend/src/{App.jsx,styles.css}`, `Frontend/src/components/Portfolio.jsx`, `Frontend/src/pages/Views.jsx`, `Frontend/playwright.config.js`, `Frontend/tests/dashboard.spec.js`, root `README.md`, this record, the design and development checklist. The master specification and native EA scaffold remain unchanged.
 
-The status service answers `GET /api/v1/status`. The polling hook updates the Web API badge independently of the mock market data; no preference path calls the API. User browser checks and automated build/API/UI results are recorded in the [web status report](../Testing/WebStatusChecks.md). No broker or credential flow exists. Human confirmation of the new badge is pending.
+The status service answers `GET /api/v1/status`. The polling hook updates the Web API badge independently of the mock market data; no preference path calls the API. User browser checks and automated build/API/UI results are recorded in the [web status report](../Testing/WebStatusChecks.md). No broker or credential flow exists. The operator confirmed **Web API → Online** in the hosted preview. MT5 remains unconfigured.
 
 ## Web preview milestone
 
@@ -74,6 +74,6 @@ The setup guide leads into the checklist. The checklist obtains the account evid
 
 ## Next and independent review
 
-Finish the operator status check. Next web slice: authentication and 2FA in an isolated test environment before any broker data or engine command path is enabled. Stage 1 broker work can resume separately: Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git. Broker-facing stages remain blocked until their gates pass.
+The operator status check is complete. Next web slice, once approved: authentication and 2FA in an isolated test environment before any broker data or engine command path is enabled. Stage 1 broker work can resume separately: Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git. Broker-facing stages remain blocked until their gates pass.
 
 Retain the Git milestones and clean WebStatus source archive. For independent review, share the tracked `Frontend/` and `Backend/` files (including dependencies, tests, assets and READMEs) plus `Documentation/` and root repository files; alternatively share the clean bundle. Ignore `dist/`, `.venv/`, `node_modules/`, and generated test output. No native trading source exists yet. Do not share passwords, tokens, personal data, broker quote files, detailed trade exports, private support correspondence or runtime database contents. The archive is not evidence of an independent review.

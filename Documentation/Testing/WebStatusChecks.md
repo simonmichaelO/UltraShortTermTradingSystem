@@ -6,9 +6,11 @@
 
 The operator opened Overview, changed the active preview instrument, set and reopened intensity at **70/100**, applied the preview stop and observed **Emergency stop**, then cleared the stop and observed **Shadow only**. These were browser-only checks, not broker actions.
 
-## Current operator check
+## Hosted status check
 
-Refresh the Tickframe trading dashboard preview and look at **Trading status** on Overview. **Web API** should say **Online**, while the card still says **MT5 not connected** and **Live entries** is **Locked**. This is the only new operator step in this milestone. If Web API stays **Unavailable**, **Invalid response** or **Status stale**, report the exact badge; do not supply credentials or try to connect MT5 as a workaround.
+**PASS (user-reported):** The user confirmed that **Web API** displayed **Online** in the hosted dashboard. This confirms web service reachability from their browser, not MT5 reachability. The disconnected terminal and locked live-entry states are covered by the automated browser checks.
+
+To repeat the check, refresh the Tickframe trading dashboard preview and look at **Trading status** on Overview. **Web API** should say **Online**, while the card still says **MT5 not connected** and **Live entries** is **Locked**. If Web API stays **Unavailable**, **Invalid response** or **Status stale**, report the exact badge; do not supply credentials or try to connect MT5 as a workaround.
 
 ## Results
 
