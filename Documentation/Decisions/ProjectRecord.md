@@ -3,12 +3,12 @@
 | Field | Current value |
 |---|---|
 | Date | 17 November 2026 |
-| Stage | 1 — research and starter prepared; Windows and account evidence pending |
+| Stage | Standalone web preview built first per user request. Stage 1 Windows and broker evidence is still pending. |
 | Starter version | `stage1-v0.1` (documentation and non-executable scaffold) |
-| EA, API and dashboard versions | None yet |
-| Source control | Initial local Git repository on `main`; portable starter bundle. No GitHub remote created or pushed. |
+| EA, API and dashboard versions | EA and API: not started. Dashboard: `web-preview-v0.1`, fixtures only. |
+| Source control | Local Git on `main` with separate Stage 1 and web preview milestones and portable bundles. No remote created or pushed. |
 | Requirements | [Master specification](../MasterSpecification.md), preserved separately from provisional design choices |
-| First practical task | Connect Exness Standard MT5 demo on Windows, no order or deposit |
+| First practical task | Use **Trading controls** in the preview, set `GBPUSD`, adjust custom intensity and apply. The later broker-track task is to connect a Standard MT5 demo read-only. |
 
 ## Decisions and scope
 
@@ -21,10 +21,24 @@
 | D-005 | Required / design pending | Broker-side protective SL, no widening and manual authorisation after restart. Dashboard Off affects entries, not protection. Never treat a disconnected command as applied. Exact emergency policy still needs approval before order-capable operation. |
 | D-006 | Provisional | First prove deterministic/statistical baselines and a loopback dashboard with bounded local mailbox. Delay ML and remote access until permission, utility, data and security requirements are evidenced. Maintain rollback and do not let model or intensity override safety. |
 | D-007 | Deployment gate | Use only documented, permitted broker workflows. Applicable terms must be clarified before automated Exness collection or broker-capable tests. No stale-price/latency arbitrage or exploitation; hold ambiguous features offline. |
+| D-008 | User-directed sequencing | Move a fixture-only web UI slice ahead of Windows MT5 setup. Broker rules, risk limits, auth and trading acceptance gates do not change. No real controls or private data in the hosted preview. |
 
-## Files at this milestone
+## Web preview milestone
 
-All listed files were created for Stage 1; no pre-existing project file was overwritten. `git ls-files` is the exact manifest for this version, including empty-directory markers.
+| Files created | Purpose |
+|---|---|
+| `Frontend/index.html`, `package.json`, `package-lock.json`, `vite.config.js`, `public/tickframe.svg` | App shell, pinned project packages, preview server configuration and vector brand asset (all within `Frontend/`). |
+| `Frontend/src/main.jsx`, `App.jsx`, `styles.css` | React entry, navigation and browser-only state, responsive styles (all within `Frontend/src/`). |
+| `Frontend/src/components/{ui,Shell,Charts,Portfolio,Dialogs}.jsx`, `src/pages/Views.jsx` | Shared UI, sidebar/header, chart, broker-disabled overview, position/notification drawers and workspace views. |
+| `Frontend/src/services/preview-model.js`, `src/assets/fonts/` | Synthetic data, checked preferences, export and local licensed fonts. |
+| `Frontend/playwright.config.js`, `tests/preview-model.test.js`, `tests/dashboard.spec.js` | Reproducible fixture/validation and browser tests (all within `Frontend/`). |
+| `Documentation/Testing/WebPreviewChecks.md` | Actual test outcomes and what is not implemented. |
+
+**Files updated:** root `README.md`, `Frontend/README.md`, `.gitignore`, `.gitattributes`, `Documentation/Architecture/SystemDesign.md`, `Documentation/Testing/DevelopmentChecklist.md` and this record. The master specification, EA and Backend are unchanged. Empty `.gitkeep` files remain as folder markers where needed. `git ls-files` lists exact tracked paths.
+
+The shell routes to components and views, which use the fixture model; all edits are browser-local, not broker commands. Build and behaviour passed the checks in the [web verification report](../Testing/WebPreviewChecks.md). No backend, EA or cross-browser production acceptance is implied.
+
+## Stage 1 files
 
 | File or group | Purpose |
 |---|---|
@@ -45,12 +59,12 @@ The setup guide leads into the checklist. The checklist obtains the account evid
 ## Evidence and open issues
 
 - **Repository checks (workspace):** validated the 25 master requirement sections, eight blank canonical inventory rows, 15 relative Markdown links/anchors, staged whitespace, and exclusion of sample private/generated paths. The release process also checks archive integrity and clones the Git bundle as a clean checkout. These are packaging checks, not MT5 tests.
-- **Not run:** Windows installation, MetaEditor compilation, broker sign-in, hedging flag read, symbol snapshots, calendar freshness, engineering tests, backtests, benchmarks or independent review. No code or test performance is claimed. There are no runtime bugs to adjudicate yet because no runtime exists.
+- **Not run:** Windows installation, MetaEditor compilation, broker sign-in, hedging flag read, symbol snapshots, calendar freshness, EA/backend tests, backtests, account benchmarks or independent review. The React test results apply only to the fixture UI.
 - **Stage 1 blockers:** user demo login/MetaEditor, exact account capabilities and costs, clock/calendar, applicable broker permission and Windows Git. No live account or deposit needed to resolve these.
 - **Later approval:** exact emergency actions (including unprotected manual positions), cash-flow/missing-midnight handling and any material changes to trading behavior before orders. Other unknowns include retention footprint, execution and signal thresholds, data quality, and whether any broker/account/instrument combination supports viable net performance at $10.
 
 ## Next and independent review
 
-Complete the single demo connection task first; then perform the symbol/account/clock/calendar inventory, confirm broker permissions, and complete Git setup. Proceed to Stage 2 only after the applicable gate, or under an explicit offline-only exception. Record both Windows evidence and outstanding limitations before promotion.
+Review the web preview first. Next web slice: a versioned, read-only FastAPI data contract with real disconnected/error/stale UI states, then authentication and 2FA before any broker data or engine command path is enabled. Stage 1 broker work can resume separately: Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git. Broker-facing stages remain blocked until their gates pass.
 
-Retain the initial Git history and the clean starter archive. For independent review at this stage, share the source snapshot or the master specification, feasibility report, design, checklist, project record and installation/configuration notes listed above. No trading source exists yet. Do not share passwords, tokens, personal data, broker quote files, detailed trade exports, private support correspondence or runtime database contents. The archive is not evidence of an independent review.
+Retain both Git milestones and the clean WebPreview source archive. For independent review, share the tracked `Frontend/` files (including package lock, tests, assets and its README) plus `Documentation/` and root repository files; alternatively share the clean bundle. Ignore `dist/`, `node_modules/`, and generated test output. No native trading source exists yet. Do not share passwords, tokens, personal data, broker quote files, detailed trade exports, private support correspondence or runtime database contents. The archive is not evidence of an independent review.

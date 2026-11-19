@@ -40,3 +40,5 @@ dist/
 build/
 .DS_Store
 Thumbs.db
+/Frontend/playwright-report/
+/Frontend/test-results/

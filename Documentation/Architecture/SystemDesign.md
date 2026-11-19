@@ -1,6 +1,6 @@
 # System architecture — Stage 1 design
 
-**Status:** design only. See the [master specification](../MasterSpecification.md) for requirements and the [project record](../Decisions/ProjectRecord.md) for decisions, status and approvals. No trading program, API or website is installed by this repository.
+**Status:** design only. See the [master specification](../MasterSpecification.md) for requirements and the [project record](../Decisions/ProjectRecord.md) for decisions, status and approvals. A [standalone web preview](../../Frontend/README.md) exists as a fixture-only slice; no trading program or operational API is installed. The architecture below governs later integration.
 
 ## Ownership of decisions
 

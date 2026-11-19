@@ -1,14 +1,14 @@
 # Ultra-short-term MT5 trading system
 
-**Stage 1 • feasibility and setup • 17 November 2026**
+**Current milestone: Tickframe web preview v0.1 · Stage 1 broker checks pending**
 
-This is a documentation and Git starter, not a trading robot. No broker has been connected, no order has been sent and there is no code to compile yet. Standard MT5 demo is the first test environment, not a choice of live account. Do not deposit or place an order for setup.
+Tickframe is the planned web console for the native MT5 trading engine. The current React + Vite preview uses prewritten examples only. There is no running EA, backend, MT5 bridge, authentication or order connection. Do not deposit or place an order for setup.
 
 ## Start here
 
-1. Open the [Windows setup guide](Documentation/Installation/WindowsSetup.md). Complete **Task 1 only**: connect MT5 desktop to an Exness Standard demo and verify the connection.
-2. Use the [Stage 1 checklist and staged test plan](Documentation/Testing/DevelopmentChecklist.md) to record the result and remaining acceptance checks.
-3. Read the [feasibility report](Documentation/FeasibilityReport.md) for published broker conditions and what still needs evidence from the terminal.
+1. Try **Tickframe trading dashboard** in the Arena preview. [Frontend README](Frontend/README.md) has the first click-through task and optional Windows build instructions. The WebPreview source ZIP includes this project plus the matching portable Git bundle.
+2. See the [web preview test report](Documentation/Testing/WebPreviewChecks.md) for verified behaviour and limitations. Web work can proceed independently of Windows MT5 setup; no trading gate has changed.
+3. When ready to begin the broker track, use the [Windows setup guide](Documentation/Installation/WindowsSetup.md) to connect a Standard MT5 **demo** without placing an order. Continue with the [Stage 1 checklist](Documentation/Testing/DevelopmentChecklist.md) and [feasibility report](Documentation/FeasibilityReport.md).
 
 ## Project reference
 
@@ -23,7 +23,7 @@ This is a documentation and Git starter, not a trading robot. No broker has been
 |---|---|
 | `EA/Experts/`, `EA/Include/USTS/`, `EA/Tests/` | Native MQL5 entry point, module namespaces, test fixtures. Aligned with the MT5 data folder, not another EA runtime. |
 | `Backend/app/`, `Backend/tests/` | FastAPI, ingestion, SQLite persistence, security and tests. |
-| `Frontend/src/` | React + Vite screens and reusable UI modules. |
+| `Frontend/` | React + Vite preview, synthetic fixtures, UI, web tests and setup guide. |
 | `Documentation/` | Requirements, research, installation, user guide, stage checks and decisions. |
 | `Configuration/` | Safe examples and schemas only; no secrets or runtime config in Stage 1. |
 | `Backups/`, `Research/` | Instructions and clean study plans; keep private data and archives out of Git. |
