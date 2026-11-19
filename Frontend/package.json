@@ -11,7 +11,9 @@
     "test": "node --test tests/preview-model.test.js tests/status-api.test.js tests/sample-api.test.js",
     "test:browser": "playwright test",
     "build:auth": "vite build --config AuthLab/vite.config.js",
-    "test:auth-browser": "playwright test --config playwright.auth.config.js"
+    "test:auth-browser": "playwright test --config playwright.auth.config.js",
+    "build:history": "vite build --config SampleHistory/vite.config.js",
+    "test:history-browser": "playwright test --config playwright.history.config.js"
   },
   "dependencies": {
     "lucide-react": "1.76.0",

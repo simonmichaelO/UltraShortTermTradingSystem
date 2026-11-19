@@ -1,6 +1,6 @@
 # Tickframe sample dashboard · v0.4
 
-The regular dashboard shows **simulated data only**. Overview account metrics, both positions views and position details, and Analytics’ Account snapshot read from the [sample API](../Backend/README.md#sample-snapshot-contract-v1). The chart, watchlist, trade history, per-instrument statistics and shadow decisions remain prewritten examples. The separate [Access Lab](../Documentation/UserGuide/AccessLab.md) does not authenticate the regular dashboard and is unchanged.
+The regular dashboard shows **simulated data only**. Overview account metrics, both positions views and position details, and Analytics’ Account snapshot read from the [sample API](../Backend/README.md#sample-snapshot-contract-v1). The chart, watchlist, trade history, per-instrument statistics and shadow decisions remain prewritten examples. The separate [Access Lab](../Documentation/UserGuide/AccessLab.md) does not authenticate the regular dashboard and is unchanged. The [Sample History preview](../Documentation/Testing/SampleHistoryChecks.md) builds independently with `npm run build:history` and does not replace the v0.4 dashboard.
 
 ## Try the sample feed in Arena
 

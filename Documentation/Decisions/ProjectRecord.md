@@ -3,12 +3,12 @@
 | Field | Current value |
 |---|---|
 | Date | 17 November 2026 |
-| Stage | Early web build: offline SQLite lab v0.5 passed restart and restore checks; v0.4 hosted delay, outage and recovery walkthrough complete. Operator confirmed v0.2 Web API status and v0.3.2 Access Lab sign-in and sign-out. Stage 1 Windows/broker evidence is pending. |
+| Stage | Early web build: Sample History v0.6 implemented and checked; hosted operator check pending. SQLite lab v0.5 passed restart and restore; v0.4 hosted walkthrough complete. Operator confirmed v0.2 Web API status and v0.3.2 Access Lab sign-in and sign-out. Stage 1 Windows/broker evidence is pending. |
 | Starter version | `stage1-v0.1` (documentation and non-executable scaffold) |
-| EA, API and dashboard versions | EA: not started. Regular dashboard `web-sample-v0.4`; separate `web-auth-lab-v0.3.2` and offline storage `web-storage-lab-v0.5`. All use synthetic data only. |
-| Source control | Local Git on `main` with Stage 1 and versioned web preview, status, Access Lab, sample API, and offline SQLite milestones. No remote created or pushed. |
+| EA, API and dashboard versions | EA: not started. Regular dashboard `web-sample-v0.4`; separate `web-auth-lab-v0.3.2`, offline storage `web-storage-lab-v0.5`, and Sample History `web-sample-history-v0.6`. All use synthetic data only. |
+| Source control | Local Git on `main` with Stage 1 and versioned web preview, status, Access Lab, sample API, offline SQLite, and Sample History milestones. Private GitHub remains planned; no remote created or pushed. |
 | Requirements | [Master specification](../MasterSpecification.md), preserved separately from provisional design choices |
-| Current practical task | Local SQLite save, reopen and backup restore verified. No operator setup needed; await approval for any read-only sample history view. |
+| Current practical task | Open the v0.6 preview and select **14:30:32 UTC**; verify **Equity $2,486.72**. No GitHub or hosting setup needed for this check. |
 
 ## Decisions and scope
 
@@ -28,6 +28,14 @@
 | D-012 | Hosted preview default | Make tab-only sign-in the sole hosted UI path; select the profile in the served HTML and do not use the browser hostname to decide. Keep loopback cookie auth and all factor, expiry and origin checks. |
 | D-013 | Approved, implemented | Deliver one immutable, reconciled account/position fixture over a same-origin read-only GET. Make delivery freshness distinct from status reachability and the fictional snapshot date. Failure without a verified sample shows no numbers or position count. Keep scenario tests browser-local and preserve the Access Lab, all broker/EA gates and locked live entries. |
 | D-014 | Approved, verified locally | Save only bundled synthetic samples in a separate versioned SQLite store. Verify original values after a process restart and after restore. Keep lab copies out of Git and the hosted previews; no storage endpoint, credentials or broker connection. |
+| D-015 | Approved, implemented | Show saved examples in a separate read-only Sample History service. Serve only a dedicated SQLite copy matched to the bundled synthetic examples; no fixture fallback, database downloads, writers, or production identities. |
+| D-016 | User reaffirmed | Keep a private GitHub copy of clean source and release history. Test at lowest cost: current Arena preview for browser feedback, existing PC for durable SQLite testing, free disposable remote demo only if needed. Do not buy hosting or expose private data. |
+
+## Sample History · v0.6
+
+The [independent history preview](../Testing/SampleHistoryChecks.md) shows both saved records, newest first, from a dedicated verified copy of the v0.5 restored database. Selection is local and the only API action is a GET. Missing or unapproved data produce **Unavailable**, distinct from a verified empty store. The v0.4 dashboard and v0.3.2 Access Lab are unchanged. Automated tests passed; operator confirmation is pending.
+
+The user reaffirmed private GitHub backup and inexpensive test hosting. See the [separate plan](../Installation/HostingAndGitHub.md) for the recommended local-first test, source bundle handoff and optional disposable remote demo. There is no GitHub remote or paid hosting in use.
 
 ## SQLite sample storage lab · v0.5
 
@@ -107,12 +115,12 @@ The setup guide leads into the checklist. The checklist obtains the account evid
 ## Evidence and open issues
 
 - **Repository checks (workspace):** validated the 25 master requirement sections, eight blank canonical inventory rows, 15 relative Markdown links/anchors, staged whitespace, and exclusion of sample private/generated paths. The release process also checks archive integrity and clones the Git bundle as a clean checkout. These are packaging checks, not MT5 tests.
-- **Not run:** Windows installation, MetaEditor compilation, broker sign-in, hedging flag read, symbol snapshots, calendar freshness, EA tests, backtests, account benchmarks or independent review. Web tests cover status, sample delivery and display, isolated test-only authentication, and the local synthetic store’s save/reopen/restore paths. No independent production security review has run.
+- **Not run:** Windows installation, MetaEditor compilation, broker sign-in, hedging flag read, symbol snapshots, calendar freshness, EA tests, backtests, account benchmarks or independent review. Web tests cover status, sample delivery and display, isolated test-only authentication, the local synthetic store’s save/reopen/restore paths, and the separate read-only history view. No independent production security review has run.
 - **Stage 1 blockers:** user demo login/MetaEditor, exact account capabilities and costs, clock/calendar, applicable broker permission and Windows Git. No live account or deposit needed to resolve these.
 - **Later approval:** exact emergency actions (including unprotected manual positions), cash-flow/missing-midnight handling and any material changes to trading behavior before orders. Other unknowns include retention footprint, execution and signal thresholds, data quality, and whether any broker/account/instrument combination supports viable net performance at $10.
 
 ## Next and independent review
 
-The operator confirmed v0.2 web status and v0.3.2 Access Lab sign-in and sign-out. The approved read-only sample API is implemented; the operator confirmed the v0.4 delay, outage and recovery walkthrough. The approved SQLite exercise is complete. A separate read-only Sample history view could be the next web-only slice if approved; it would still use synthetic data and no public write endpoint. Stage 6 remains open: secure operational identity/config storage, recovery, permissions and independent deployment review require later work. No broker data or engine command path is enabled. Stage 1 can resume separately with Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git.
+The operator confirmed v0.2 web status and v0.3.2 Access Lab sign-in and sign-out. The approved read-only sample API is implemented; the operator confirmed the v0.4 delay, outage and recovery walkthrough. The approved SQLite exercise is complete. The separate read-only Sample History view was approved and verified in the workspace. Await the hosted selection check before moving on to the private source backup. No remote was created or pushed; no hosting was purchased. Stage 6 remains open: secure operational identity/config storage, recovery, permissions and independent deployment review require later work. No broker data or engine command path is enabled. Stage 1 can resume separately with Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git.
 
-Retain `UltraShortTermTradingSystem-WebStorageLab-0.5.zip` and the prior clean archives and Git tags. For independent review, share the tracked `Frontend/` and `Backend/` files (including dependency manifests, tests, assets and READMEs) plus `Documentation/` and root repository files, or the portable Git bundle. Ignore `dist/`, `.venv/`, `node_modules/`, and generated test output. No native trading source exists yet. Do not share credentials, personal or broker data, private support correspondence, or runtime database contents. The archive is not evidence of an independent review.
+Retain `UltraShortTermTradingSystem-WebSampleHistory-0.6.zip` and the prior clean archives and Git tags. For independent review, share the tracked `Frontend/` and `Backend/` files (including dependency manifests, tests, assets and READMEs) plus `Documentation/` and root repository files, or the portable Git bundle. Ignore `dist/`, `.venv/`, `node_modules/`, and generated test output. No native trading source exists yet. Do not share credentials, personal or broker data, private support correspondence, or runtime database contents. The archive is not evidence of an independent review.
