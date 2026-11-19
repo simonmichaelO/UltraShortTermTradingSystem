@@ -3,12 +3,12 @@
 | Field | Current value |
 |---|---|
 | Date | 17 November 2026 |
-| Stage | Early web build: sample API v0.4 implemented and checked; hosted operator check pending. Operator confirmed v0.2 Web API status and v0.3.2 Access Lab sign-in and sign-out. Stage 1 Windows/broker evidence is pending. |
+| Stage | Early web build: sample API v0.4 implemented and tested; hosted delayed-sample check passed, outage check pending. Operator confirmed v0.2 Web API status and v0.3.2 Access Lab sign-in and sign-out. Stage 1 Windows/broker evidence is pending. |
 | Starter version | `stage1-v0.1` (documentation and non-executable scaffold) |
 | EA, API and dashboard versions | EA: not started. Regular dashboard `web-sample-v0.4`; separate `web-auth-lab-v0.3.2`, test identities only. Both use synthetic data. |
 | Source control | Local Git on `main` with Stage 1 and versioned web preview, status, Access Lab, and sample API milestones. No remote created or pushed. |
 | Requirements | [Master specification](../MasterSpecification.md), preserved separately from provisional design choices |
-| Current practical task | In the new v0.4 Arena preview, choose **Delivery test → Delayed sample**. Verify **Stale** is shown with sample values still visible; await operator report. |
+| Current practical task | In the v0.4 Arena preview, choose **Delivery test → Simulated outage**. Verify **Unavailable** and dashes in the account cards; await operator report. |
 
 ## Decisions and scope
 
@@ -30,7 +30,7 @@
 
 ## Sample dashboard · v0.4
 
-`GET /api/v1/sample-snapshot` provides the source for Overview account metrics, the open-position views and details, and Analytics’ Account snapshot. The example charts, watchlist, history and decisions remain bundled. There are no writes or broker dependencies. The **Delivery test** can represent normal, delayed or failed reads without a global change. The [contract](../../Backend/README.md#sample-snapshot-contract-v1) records window, validation and reply handling; the [verification handoff](../Testing/WebSampleChecks.md) separates automated evidence from the pending operator check.
+`GET /api/v1/sample-snapshot` provides the source for Overview account metrics, the open-position views and details, and Analytics’ Account snapshot. The example charts, watchlist, history and decisions remain bundled. There are no writes or broker dependencies. The **Delivery test** can represent normal, delayed or failed reads without a global change. The [contract](../../Backend/README.md#sample-snapshot-contract-v1) records window, validation and reply handling; the [verification handoff](../Testing/WebSampleChecks.md) records automated evidence and the operator’s confirmation that a delayed sample was labelled **Stale** without hiding the amounts.
 
 **Main files:** `Backend/app/{main.py,api/sample_snapshot.py,services/sample_snapshot.py,services/fixtures/sample_snapshot_v1.json}`, `Frontend/src/{services/sample-api.js,hooks/useSampleFeed.js,components/SampleFeed.jsx}`, the consuming dashboard views, and the Python, Node and Chromium tests. The v0.3.2 Access Lab service and policies, original master specification and EA scaffold are unchanged.
 
@@ -106,6 +106,6 @@ The setup guide leads into the checklist. The checklist obtains the account evid
 
 ## Next and independent review
 
-The operator confirmed v0.2 web status and v0.3.2 Access Lab sign-in and sign-out. The approved read-only sample API is implemented; the next user-facing task is the v0.4 delayed-sample check, not a broker or sign-in test. Stage 6 remains open: secure operational identity/config storage, recovery, permissions and independent deployment review require later work. No broker data or engine command path is enabled. Stage 1 can resume separately with Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git.
+The operator confirmed v0.2 web status and v0.3.2 Access Lab sign-in and sign-out. The approved read-only sample API is implemented; the operator confirmed the v0.4 delayed-sample check. The next user-facing task is the simulated outage check, not a broker or sign-in test. Stage 6 remains open: secure operational identity/config storage, recovery, permissions and independent deployment review require later work. No broker data or engine command path is enabled. Stage 1 can resume separately with Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git.
 
 Retain `UltraShortTermTradingSystem-WebSample-0.4.zip` and the prior clean archives and Git tags. For independent review, share the tracked `Frontend/` and `Backend/` files (including dependency manifests, tests, assets and READMEs) plus `Documentation/` and root repository files, or the portable Git bundle. Ignore `dist/`, `.venv/`, `node_modules/`, and generated test output. No native trading source exists yet. Do not share credentials, personal or broker data, private support correspondence, or runtime database contents. The archive is not evidence of an independent review.

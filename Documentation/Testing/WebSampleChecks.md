@@ -2,9 +2,10 @@
 
 **Scope:** Same-origin delivery of an example USD account and positions. Everything remains simulated. No MT5, broker account, SQLite, production login, command path, or change to the separate Access Lab. Stage 1 and Stage 6 acceptance are still open.
 
-## Operator check · awaiting confirmation
+## Hosted operator checks · in progress
 
-Open **Tickframe sample dashboard v0.4** in Arena. In **Overview → Sample data feed → Delivery test**, choose **Delayed sample**. Expect **Stale** while the sample amounts are still visible. Report the badge you see. There is nothing to install or sign in to, and the check cannot affect an account.
+- **Delayed sample — passed (operator reported).** The operator confirmed that choosing **Delayed sample** displayed **Stale** while the sample amounts stayed visible.
+- **Next: Simulated outage.** In **Tickframe sample dashboard v0.4 → Overview → Sample data feed → Delivery test**, choose **Simulated outage**. Expect **Unavailable** and dashes instead of account values. Awaiting the operator's report. This is local to the preview and cannot affect an account.
 
 ## Expected display
 
