@@ -8,7 +8,7 @@ After v0.3.1, the operator still saw the cookie error, confirming that the prior
 
 - **40 Python ASGI tests passed**, including server-selected profiles with a different outer address, rejection of an old build without the mode marker, unchanged origin guard and two-factor tests.
 - **5 Chromium cases passed on the hosted-mode HTTPS replay**, including one account-creation button, no cookie requests from the hosted form, no workspace before both factors, rejection of a reused code, no session after reload, and iframe session isolation. Two loopback-only cases skipped as intended. **5 Chromium cases passed in loopback mode** (two hosted-only cases skipped).
-- **Lab build, 9 Node unit tests and 9 regular dashboard Chromium tests passed.** The user's actual v0.3.2 result is pending; report only the heading or error text.
+- **Lab build, 9 Node unit tests and 9 regular dashboard Chromium tests passed.** The operator reported successful sign-in in the hosted v0.3.2 walkthrough. Manual sign-out confirmation is pending.
 
 ## Cookie compatibility patch · v0.3.1
 
@@ -31,7 +31,7 @@ The operator reported the setup-cookie error at account creation in the hosted l
 
 ## Hosted acceptance
 
-The latest Live Preview is exposed as **Tickframe sign-in lab v0.3.2**. From within the sandbox, the external proxy requires Arena's traffic access token (also required for the existing v0.2 preview), so unauthenticated requests to the raw proxy address are not an end-to-end test. Local QA exercised the hosted-mode application, HTTPS and embedded-cookie behavior. **The user reported a cookie error twice; the v0.3.2 retry on the new preview is pending.** Follow the [cookie-error instructions](../UserGuide/AccessLab.md#if-something-doesnt-look-right); gather only headings or results, not any password, seed, session token, QR image or code.
+The latest Live Preview is exposed as **Tickframe sign-in lab v0.3.2**. From within the sandbox, the external proxy requires Arena's traffic access token (also required for the existing v0.2 preview), so unauthenticated requests to the raw proxy address are not an end-to-end test. Local QA exercised the hosted-mode application, HTTPS and embedded-cookie behavior. **User-reported sign-in passed:** after two earlier cookie errors, the operator reported “i am signed in” in the new hosted preview. Next confirm that the **Sign out** button shows **Signed out**. This is a test identity only; no broker or production access was verified. Gather only headings or results, not any password, seed, session token, QR image or code.
 
 ## Reproduce the TLS QA profile (optional developer test)
 
