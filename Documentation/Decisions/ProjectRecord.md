@@ -3,12 +3,12 @@
 | Field | Current value |
 |---|---|
 | Date | 17 November 2026 |
-| Stage | Early web build: Sample History v0.6 implemented and checked; hosted operator check pending. SQLite lab v0.5 passed restart and restore; v0.4 hosted walkthrough complete. Operator confirmed v0.2 Web API status and v0.3.2 Access Lab sign-in and sign-out. Stage 1 Windows/broker evidence is pending. |
+| Stage | Early web build: Sample History v0.6 implemented and checked; operator confirmed hosted snapshot selection. SQLite lab v0.5 passed restart and restore; v0.4 hosted walkthrough complete. Operator confirmed v0.2 Web API status and v0.3.2 Access Lab sign-in and sign-out. Stage 1 Windows/broker evidence is pending. |
 | Starter version | `stage1-v0.1` (documentation and non-executable scaffold) |
 | EA, API and dashboard versions | EA: not started. Regular dashboard `web-sample-v0.4`; separate `web-auth-lab-v0.3.2`, offline storage `web-storage-lab-v0.5`, and Sample History `web-sample-history-v0.6`. All use synthetic data only. |
 | Source control | Local Git on `main` with Stage 1 and versioned web preview, status, Access Lab, sample API, offline SQLite, and Sample History milestones. Private GitHub remains planned; no remote created or pushed. |
 | Requirements | [Master specification](../MasterSpecification.md), preserved separately from provisional design choices |
-| Current practical task | Open the v0.6 preview and select **14:30:32 UTC**; verify **Equity $2,486.72**. No GitHub or hosting setup needed for this check. |
+| Current practical task | Create or confirm an empty **Private** GitHub repository for the source backup. Await the operator’s confirmation before guiding the push. No hosting purchase or broker setup. |
 
 ## Decisions and scope
 
@@ -33,7 +33,7 @@
 
 ## Sample History · v0.6
 
-The [independent history preview](../Testing/SampleHistoryChecks.md) shows both saved records, newest first, from a dedicated verified copy of the v0.5 restored database. Selection is local and the only API action is a GET. Missing or unapproved data produce **Unavailable**, distinct from a verified empty store. The v0.4 dashboard and v0.3.2 Access Lab are unchanged. Automated tests passed; operator confirmation is pending.
+The [independent history preview](../Testing/SampleHistoryChecks.md) shows both saved records, newest first, from a dedicated verified copy of the v0.5 restored database. Selection is local and the only API action is a GET. Missing or unapproved data produce **Unavailable**, distinct from a verified empty store. The v0.4 dashboard and v0.3.2 Access Lab are unchanged. Automated tests passed. The operator confirmed the older example displayed **Equity $2,486.72**, completing the hosted selection check.
 
 The user reaffirmed private GitHub backup and inexpensive test hosting. See the [separate plan](../Installation/HostingAndGitHub.md) for the recommended local-first test, source bundle handoff and optional disposable remote demo. There is no GitHub remote or paid hosting in use.
 
@@ -121,6 +121,6 @@ The setup guide leads into the checklist. The checklist obtains the account evid
 
 ## Next and independent review
 
-The operator confirmed v0.2 web status and v0.3.2 Access Lab sign-in and sign-out. The approved read-only sample API is implemented; the operator confirmed the v0.4 delay, outage and recovery walkthrough. The approved SQLite exercise is complete. The separate read-only Sample History view was approved and verified in the workspace. Await the hosted selection check before moving on to the private source backup. No remote was created or pushed; no hosting was purchased. Stage 6 remains open: secure operational identity/config storage, recovery, permissions and independent deployment review require later work. No broker data or engine command path is enabled. Stage 1 can resume separately with Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git.
+The operator confirmed v0.2 web status and v0.3.2 Access Lab sign-in and sign-out. The approved read-only sample API is implemented; the operator confirmed the v0.4 delay, outage and recovery walkthrough. The approved SQLite exercise is complete. The separate read-only Sample History view was approved and verified in the workspace. The operator confirmed the hosted selection. Next: confirm an empty private GitHub repository before linking or pushing the verified source bundle. No remote was created or pushed; no hosting was purchased. Stage 6 remains open: secure operational identity/config storage, recovery, permissions and independent deployment review require later work. No broker data or engine command path is enabled. Stage 1 can resume separately with Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git.
 
 Retain `UltraShortTermTradingSystem-WebSampleHistory-0.6.zip` and the prior clean archives and Git tags. For independent review, share the tracked `Frontend/` and `Backend/` files (including dependency manifests, tests, assets and READMEs) plus `Documentation/` and root repository files, or the portable Git bundle. Ignore `dist/`, `.venv/`, `node_modules/`, and generated test output. No native trading source exists yet. Do not share credentials, personal or broker data, private support correspondence, or runtime database contents. The archive is not evidence of an independent review.

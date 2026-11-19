@@ -2,9 +2,9 @@
 
 **Scope:** View the two saved synthetic snapshots in a browser. The independent FastAPI service reads a verified SQLite copy from the v0.5 recovery exercise. The regular dashboard and Access Lab still run independently. No broker, database writer, auth route, or trading controls are included.
 
-## One hosted check · awaiting operator confirmation
+## Hosted selection check · passed (operator reported)
 
-Open **Tickframe Sample History v0.6** in Arena. Under **Saved snapshots**, select the older **14:30:32 UTC** example. The **Equity** in **Account snapshot** should change from **$2,491.76** to **$2,486.72**. Tell us the Equity you see. You do not need to install or sign in to anything for this check.
+The operator confirmed that selecting the older **14:30:32 UTC** example in **Tickframe Sample History v0.6** changed **Account snapshot → Equity** to **$2,486.72**. This completes the hosted selection check, not a production or broker test.
 
 ## Contract and boundary
 
