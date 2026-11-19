@@ -2,11 +2,11 @@
 
 **Scope:** Same-origin delivery of an example USD account and positions. Everything remains simulated. No MT5, broker account, SQLite, production login, command path, or change to the separate Access Lab. Stage 1 and Stage 6 acceptance are still open.
 
-## Hosted operator checks · in progress
+## Hosted operator checks · complete
 
 - **Delayed sample — passed (operator reported).** The operator confirmed that choosing **Delayed sample** displayed **Stale** while the sample amounts stayed visible.
 - **Simulated outage — passed (operator reported).** The operator confirmed **Unavailable** and dashes instead of account amounts. The no-position-count behaviour is covered by the automated browser checks.
-- **Next: return to Normal delivery.** In **Tickframe sample dashboard v0.4 → Overview → Sample data feed → Delivery test**, choose **Normal delivery**. Expect **Fresh** and the sample amounts to return. Awaiting the operator's report.
+- **Normal delivery after outage — passed (operator reported).** The operator confirmed that switching back to **Normal delivery** restored **Fresh** and the sample amounts. The hosted v0.4 walkthrough is complete.
 
 ## Expected display
 
@@ -24,7 +24,7 @@
 - **54 Python tests passed; dependency check passed.** New API tests cover reconciled contents, response timestamps, invalid or absent fixtures, deliberate 503, independent status, request marker handling, rejection of writes and absence of auth/source routes. The suite includes the existing isolated Access Lab regression tests.
 - **15 Node tests passed; production build passed.** Coverage includes safe provenance, strict sample validation and arithmetic, missing versus empty data, same-origin reads, cached-response rejection, expiry, duplicate publication handling and recovery.
 - **16 Chromium scenarios passed** against the combined FastAPI and built dashboard. Coverage includes UI rendering from API values rather than hardcoded defaults, simulated delay and outage, stale retention, expiry, wrong request marker, recovery, mobile, local preview controls, and independent Web API reachability. An additional Chromium layout/request sweep across 320, 390, 600, 768, 1024, 1200 and 1440 px found no page overflow, script errors, cross-origin requests or writes while switching states on Overview, Positions and Analytics.
-- **New preview origin smoke check passed** at sandbox port **5177** with an Arena-shaped `Host` header: HTML/assets 200, status 200, normal and delayed sample 200, outage 503 without numbers, sample POST 405, regular auth route 404. The Access Lab still answered on its separate port and did not serve the sample route. This does not substitute for the operator’s hosted-browser check.
+- **New preview origin smoke check passed** at sandbox port **5177** with an Arena-shaped `Host` header: HTML/assets 200, status 200, normal and delayed sample 200, outage 503 without numbers, sample POST 405, regular auth route 404. The Access Lab still answered on its separate port and did not serve the sample route. This smoke check is separate from the operator’s hosted-browser confirmations above.
 
 ## Reproduce and limits
 
