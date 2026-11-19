@@ -1,16 +1,14 @@
 # Ultra-short-term MT5 trading system
 
-**Current milestone: Tickframe Access Lab v0.3.2 · Regular web preview v0.2 · Stage 1 broker checks pending**
+**Current milestone: Tickframe sample dashboard v0.4 · Separate Access Lab v0.3.2 · Stage 1 broker checks pending**
 
-Tickframe is the planned web console for the native MT5 trading engine. The React + Vite preview uses prewritten market examples. It now runs with a read-only FastAPI status endpoint; there is no running EA, MT5 bridge, database, or order connection. A separate Access Lab tests passwords and authenticator codes with disposable, synthetic identities only. Do not deposit or place an order for setup.
+Tickframe is the planned web console for the native MT5 trading engine. The preview uses simulated market examples. It now reads one example account and its positions from a read-only FastAPI endpoint, separately from the web status check. There is no running EA, MT5 bridge, database, or order connection. No deposit, broker sign-in, or installation is needed to try it in Arena.
 
 ## Start here
 
-Open **Tickframe sign-in lab** in Arena for the [test sign-in checkpoint](Documentation/UserGuide/AccessLab.md). No software setup is needed to open the lab. The hosted lab uses **Create test account without cookies** by default; leave the preview open while testing. The [Access Lab QA handoff](Documentation/Testing/AuthLabChecks.md) records the tests and remaining gates.
-
-1. Try **Tickframe trading dashboard** in the Arena preview. [Frontend README](Frontend/README.md) has the first click-through task and optional Windows build instructions. The WebAuthLab source ZIP includes this project plus the portable Git history and both previews’ instructions.
-2. See the [web status test report](Documentation/Testing/WebStatusChecks.md) for verified behaviour and limitations, and the [Backend guide](Backend/README.md) to run the combined preview. Web work can proceed independently of Windows MT5 setup; no trading gate has changed.
-3. When ready to begin the broker track, use the [Windows setup guide](Documentation/Installation/WindowsSetup.md) to connect a Standard MT5 **demo** without placing an order. Continue with the [Stage 1 checklist](Documentation/Testing/DevelopmentChecklist.md) and [feasibility report](Documentation/FeasibilityReport.md).
+1. Open **Tickframe sample dashboard v0.4** in Arena. On **Overview**, use **Sample data feed → Delivery test → Delayed sample**. The badge should change to **Stale** while the sample values are still shown. [Frontend guide](Frontend/README.md) · [v0.4 checks](Documentation/Testing/WebSampleChecks.md) · [Run the combined preview](Backend/README.md).
+2. The [separate Access Lab](Documentation/UserGuide/AccessLab.md) tests passwords and authenticator codes with disposable test identities only. The operator has confirmed sign-in and sign-out in v0.3.2. It is not a sign-in service for the regular dashboard. See the [Access Lab checks](Documentation/Testing/AuthLabChecks.md) for evidence and limits.
+3. When ready to begin the broker track, use the [Windows setup guide](Documentation/Installation/WindowsSetup.md) to connect a Standard MT5 **demo** without placing an order. Continue with the [Stage 1 checklist](Documentation/Testing/DevelopmentChecklist.md) and [feasibility report](Documentation/FeasibilityReport.md). None of the web previews clears a trading gate.
 
 ## Project reference
 
@@ -24,10 +22,10 @@ Open **Tickframe sign-in lab** in Arena for the [test sign-in checkpoint](Docume
 | Path | Purpose |
 |---|---|
 | `EA/Experts/`, `EA/Include/USTS/`, `EA/Tests/` | Native MQL5 entry point, module namespaces, test fixtures. Aligned with the MT5 data folder, not another EA runtime. |
-| `Backend/app/`, `Backend/tests/` | Read-only status and isolated test authentication with separate entry points. No production identities or SQLite yet. |
-| `Frontend/` | React + Vite fixture dashboard; `Frontend/AuthLab/` is the separate test sign-in UI. |
+| `Backend/app/`, `Backend/tests/` | Read-only status and sample delivery. Test authentication has a separate entry point. No production identities or SQLite yet. |
+| `Frontend/` | React + Vite sample dashboard; `Frontend/AuthLab/` is the separate test sign-in UI. |
 | `Documentation/` | Requirements, research, installation, user guide, stage checks and decisions. |
 | `Configuration/` | Safe examples and schemas only; no secrets or runtime config in Stage 1. |
 | `Backups/`, `Research/` | Instructions and clean study plans; keep private data and archives out of Git. |
 
-Empty module directories have `.gitkeep` markers so Git preserves the structure. The private GitHub remote is not yet created. The starter archive includes a portable Git bundle so a Windows clone can keep the first commit. See the setup guide when ready.
+Empty module directories have `.gitkeep` markers so Git preserves the structure. The private GitHub remote is not yet created. The **UltraShortTermTradingSystem-WebSample-0.4.zip** source handoff includes a portable Git bundle with `main` and the milestone tags. See the setup guide when ready.

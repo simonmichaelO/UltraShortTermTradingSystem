@@ -1,9 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ACCOUNT, DEFAULT_CONFIG, HISTORY, LIMITS, METRICS, POSITIONS, SERIES, STORAGE_KEY, SYMBOLS,
+import { DEFAULT_CONFIG, HISTORY, LIMITS, STORAGE_KEY, SYMBOLS,
   filterBySymbol, historyCsv, loadConfig, previewMode, saveConfig, validateConfig } from '../src/services/preview-model.js';
 
-const cents = amount => Math.round(amount * 100);
 const fakeStorage = (start = null) => {
   let value = start;
   return { getItem(key) { assert.equal(key, STORAGE_KEY); return value; }, setItem(key, next) { assert.equal(key, STORAGE_KEY); value = next; } };
@@ -47,16 +46,6 @@ test('emergency state supersedes the shadow switch; no preview state is live', (
   assert.equal(previewMode(DEFAULT_CONFIG), 'Shadow only');
   assert.equal(previewMode({ ...DEFAULT_CONFIG, shadow: false }), 'Monitoring only');
   assert.equal(previewMode({ ...DEFAULT_CONFIG, emergency: true }), 'Emergency stop');
-});
-
-test('sample equity, margin and displayed trades reconcile without rounded drift', () => {
-  assert.equal(cents(ACCOUNT.balance + ACCOUNT.floating), cents(ACCOUNT.equity));
-  assert.equal(cents(ACCOUNT.freeMargin + ACCOUNT.usedMargin), cents(ACCOUNT.equity));
-  assert.equal(cents(POSITIONS.reduce((sum, item) => sum + item.net, 0)), cents(ACCOUNT.floating));
-  assert.equal(cents(HISTORY.filter(t => t.day === 'Nov 17').reduce((sum, item) => sum + item.net, 0)), cents(ACCOUNT.realised));
-  assert.equal(METRICS.drawdownPercent.toFixed(2), '0.72');
-  assert.equal(METRICS.dailyPercent.toFixed(2), '3.61');
-  for (const series of Object.values(SERIES)) assert.equal(series.values.at(-1), ACCOUNT.equity);
 });
 
 test('closed trade filter and export preserve simulated provenance', () => {

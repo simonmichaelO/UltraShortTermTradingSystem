@@ -69,19 +69,20 @@ export function EmergencyDialog({ latched, onToggle, onClose }) {
   return <Dialog title={latched ? 'Clear preview stop?' : 'Test emergency stop?'} subtitle="Simulation only" type="modal" icon={ShieldAlert} onClose={onClose}>
     <div className="drawer-body modal-body">
       <p>{latched ? 'This clears the stop in the preview and restores your selected shadow or monitoring mode. It cannot arm live trading.' : 'This latches the preview into Emergency stop. It won’t cancel orders, close positions, or send commands to MT5.'}</p>
-      <div className="notice notice-amber"><CircleAlert size={18} /><span><strong>No broker connected</strong><small>Sample positions remain visible and unchanged.</small></span></div>
+      <div className="notice notice-amber"><CircleAlert size={18} /><span><strong>No broker connected</strong><small>This does not change any sample positions.</small></span></div>
     </div>
     <div className="dialog-actions"><button className="btn btn-secondary" type="button" onClick={onClose}>Cancel</button>
       <button className={`btn ${latched ? 'btn-primary' : 'btn-danger'}`} type="button" onClick={onToggle}>{latched ? 'Clear preview stop' : 'Apply preview stop'}</button></div>
   </Dialog>;
 }
 
-export function PositionDialog({ position, onClose }) {
+export function PositionDialog({ position, phase, onClose }) {
   const instrument = SYMBOL_BY_CODE[position.symbol];
-  const facts = [ ['Volume (lots)', position.volume.toFixed(2)], ['Entry', position.entry], ['Current quote', position.current], ['Stop loss', position.sl],
+  const facts = [ ['Volume (lots)', position.volume.toFixed(2)], ['Entry', position.entry], ['Sample quote', position.current], ['Stop loss', position.sl],
     ['Take profit', position.tp], ['Opened (UTC)', position.time], ['Duration', position.duration], ['Trailing status', position.trailing], ['Partial closes', 'None in sample'] ];
-  return <Dialog title={`${position.symbol} position`} subtitle={`${position.id} · simulated fixture`} onClose={onClose} icon={FlaskConical}>
+  return <Dialog title={`${position.symbol} position`} subtitle={`${position.id} · ${phase === 'stale' ? 'stale simulated sample' : 'simulated sample'}`} onClose={onClose} icon={FlaskConical}>
     <div className="drawer-body position-detail">
+      {phase === 'stale' && <p className="position-stale">Last available sample; these values are not current.</p>}
       <div className="detail-summary"><SymbolMark symbol={instrument} size="lg" /><div><strong>{position.symbol}</strong><small>{instrument.name}</small></div><Side side={position.side} /></div>
       <div className="detail-pnl"><span>Estimated net P/L</span><strong className={position.net < 0 ? 'text-negative' : 'text-positive'}>{signedUsd(position.net)}</strong></div>
       <dl className="value-list detail-values">{facts.map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>)}</dl>

@@ -4,7 +4,7 @@ import { Pill } from './ui.jsx';
 const APPEARANCE = {
   checking: { label: 'Checking', tone: 'neutral', detail: 'Waiting for the preview status API.' },
   online: { label: 'Online', tone: 'lime', detail: 'The web backend responded. No terminal is linked.' },
-  unavailable: { label: 'Unavailable', tone: 'amber', detail: 'The web backend did not respond. Example data is still available.' },
+  unavailable: { label: 'Unavailable', tone: 'amber', detail: 'The status endpoint did not respond. The sample feed is checked separately.' },
   invalid: { label: 'Invalid response', tone: 'amber', detail: 'The response did not match the preview status contract.' },
   stale: { label: 'Status stale', tone: 'amber', detail: 'The most recent check failed. The previous response is not current.' },
 };

@@ -41,7 +41,7 @@ export function EquityChart() {
   }
 
   return <section className="panel chart-panel" aria-labelledby="equity-heading">
-    <PanelHeading id="equity-heading" title="Equity curve" description="Simulated account value over time" action={
+    <PanelHeading id="equity-heading" title="Equity curve" description="Prewritten example · not the sample feed" action={
       <div className="segmented" role="group" aria-label="Equity time range">
         {Object.keys(SERIES).map(option => <button className={range === option ? 'is-active' : ''} aria-pressed={range === option}
           type="button" key={option} onClick={() => { setRange(option); inspect(null); }}>{option}</button>)}

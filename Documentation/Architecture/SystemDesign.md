@@ -1,6 +1,6 @@
 # System architecture — Stage 1 design
 
-**Status:** design only. See the [master specification](../MasterSpecification.md) for requirements and the [project record](../Decisions/ProjectRecord.md) for decisions, status and approvals. A [web preview](../../Frontend/README.md) uses prewritten fixtures and a [read-only status API](../../Backend/README.md). The separate [Access Lab](../../Backend/AuthLab.md) tests password hashing, TOTP and sessions using synthetic, temporary identities only. No production user store, EA, broker data, SQLite or command protocol is implemented.
+**Status:** design only. See the [master specification](../MasterSpecification.md) for requirements and the [project record](../Decisions/ProjectRecord.md) for decisions, status and approvals. A [web preview](../../Frontend/README.md) uses prewritten fixtures and [read-only web status and sample-delivery APIs](../../Backend/README.md). The separate [Access Lab](../../Backend/AuthLab.md) tests password hashing, TOTP and sessions using synthetic, temporary identities only. No production user store, EA, broker data, SQLite or command protocol is implemented.
 
 ## Ownership of decisions
 

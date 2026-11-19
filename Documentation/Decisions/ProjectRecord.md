@@ -3,12 +3,12 @@
 | Field | Current value |
 |---|---|
 | Date | 17 November 2026 |
-| Stage | Early web build: regular preview confirmed by operator; operator confirmed sign-in and sign-out in the disconnected, tab-only Access Lab v0.3.2. Stage 1 Windows/broker evidence is pending. |
+| Stage | Early web build: sample API v0.4 implemented and checked; hosted operator check pending. Operator confirmed v0.2 Web API status and v0.3.2 Access Lab sign-in and sign-out. Stage 1 Windows/broker evidence is pending. |
 | Starter version | `stage1-v0.1` (documentation and non-executable scaffold) |
-| EA, API and dashboard versions | EA: not started. Regular preview `web-status-v0.2`; separate `web-auth-lab-v0.3.2`, test identities only. Both use synthetic data. |
-| Source control | Local Git on `main` with Stage 1, web preview, web status, Access Lab and its cookie-compatibility patches. No remote created or pushed. |
+| EA, API and dashboard versions | EA: not started. Regular dashboard `web-sample-v0.4`; separate `web-auth-lab-v0.3.2`, test identities only. Both use synthetic data. |
+| Source control | Local Git on `main` with Stage 1 and versioned web preview, status, Access Lab, and sample API milestones. No remote created or pushed. |
 | Requirements | [Master specification](../MasterSpecification.md), preserved separately from provisional design choices |
-| Current practical task | Hosted lab sign-in and sign-out confirmed. Web acceptance check complete; await approval for a read-only API for sample account and position data. |
+| Current practical task | In the new v0.4 Arena preview, choose **Delivery test → Delayed sample**. Verify **Stale** is shown with sample values still visible; await operator report. |
 
 ## Decisions and scope
 
@@ -26,6 +26,13 @@
 | D-010 | Approved early web work | Build password + TOTP in an isolated, test-only lab. Keep v0.2 and its browser preferences intact. Expire lab identities; no production accounts, database, broker link or order path. |
 | D-011 | Test-only compatibility | When the hosted preview does not return a setup cookie, offer a separate, opt-in tab-memory transport. Both factors and role checks remain mandatory; no change to the cookie flow, local-only lab or regular dashboard. |
 | D-012 | Hosted preview default | Make tab-only sign-in the sole hosted UI path; select the profile in the served HTML and do not use the browser hostname to decide. Keep loopback cookie auth and all factor, expiry and origin checks. |
+| D-013 | Approved, implemented | Deliver one immutable, reconciled account/position fixture over a same-origin read-only GET. Make delivery freshness distinct from status reachability and the fictional snapshot date. Failure without a verified sample shows no numbers or position count. Keep scenario tests browser-local and preserve the Access Lab, all broker/EA gates and locked live entries. |
+
+## Sample dashboard · v0.4
+
+`GET /api/v1/sample-snapshot` provides the source for Overview account metrics, the open-position views and details, and Analytics’ Account snapshot. The example charts, watchlist, history and decisions remain bundled. There are no writes or broker dependencies. The **Delivery test** can represent normal, delayed or failed reads without a global change. The [contract](../../Backend/README.md#sample-snapshot-contract-v1) records window, validation and reply handling; the [verification handoff](../Testing/WebSampleChecks.md) separates automated evidence from the pending operator check.
+
+**Main files:** `Backend/app/{main.py,api/sample_snapshot.py,services/sample_snapshot.py,services/fixtures/sample_snapshot_v1.json}`, `Frontend/src/{services/sample-api.js,hooks/useSampleFeed.js,components/SampleFeed.jsx}`, the consuming dashboard views, and the Python, Node and Chromium tests. The v0.3.2 Access Lab service and policies, original master specification and EA scaffold are unchanged.
 
 ## Access Lab hosted default · v0.3.2
 
@@ -93,12 +100,12 @@ The setup guide leads into the checklist. The checklist obtains the account evid
 ## Evidence and open issues
 
 - **Repository checks (workspace):** validated the 25 master requirement sections, eight blank canonical inventory rows, 15 relative Markdown links/anchors, staged whitespace, and exclusion of sample private/generated paths. The release process also checks archive integrity and clones the Git bundle as a clean checkout. These are packaging checks, not MT5 tests.
-- **Not run:** Windows installation, MetaEditor compilation, broker sign-in, hedging flag read, symbol snapshots, calendar freshness, EA tests, backtests, account benchmarks or independent review. Web tests cover the status service, fixture UI and test-only authentication. No independent production security review has run.
+- **Not run:** Windows installation, MetaEditor compilation, broker sign-in, hedging flag read, symbol snapshots, calendar freshness, EA tests, backtests, account benchmarks or independent review. Web tests cover status, sample delivery and display, and isolated test-only authentication. No independent production security review has run.
 - **Stage 1 blockers:** user demo login/MetaEditor, exact account capabilities and costs, clock/calendar, applicable broker permission and Windows Git. No live account or deposit needed to resolve these.
 - **Later approval:** exact emergency actions (including unprotected manual positions), cash-flow/missing-midnight handling and any material changes to trading behavior before orders. Other unknowns include retention footprint, execution and signal thresholds, data quality, and whether any broker/account/instrument combination supports viable net performance at $10.
 
 ## Next and independent review
 
-The operator confirmed the v0.2 web status. The operator also confirmed sign-in and sign-out in the v0.3.2 hosted Access Lab. The next proposed web slice, pending approval, is a read-only API for sample account and position data with explicit freshness and unavailable states. This would not connect MT5 or complete Stage 6. Secure operational identity/config storage, account recovery, permissions and real deployment/security review remain blocked on later requirements and evidence. No broker data or engine command path is enabled. Stage 1 broker work can resume separately: Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git. Broker-facing stages remain blocked until their gates pass.
+The operator confirmed v0.2 web status and v0.3.2 Access Lab sign-in and sign-out. The approved read-only sample API is implemented; the next user-facing task is the v0.4 delayed-sample check, not a broker or sign-in test. Stage 6 remains open: secure operational identity/config storage, recovery, permissions and independent deployment review require later work. No broker data or engine command path is enabled. Stage 1 can resume separately with Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git.
 
-Retain the Git milestones and clean WebAuthLab v0.3.2 source archive. For independent review, share the tracked `Frontend/` and `Backend/` files (including dependencies, tests, assets and READMEs) plus `Documentation/` and root repository files; alternatively share the clean bundle. Ignore `dist/`, `.venv/`, `node_modules/`, and generated test output. No native trading source exists yet. Do not share passwords, tokens, personal data, broker quote files, detailed trade exports, private support correspondence or runtime database contents. The archive is not evidence of an independent review.
+Retain `UltraShortTermTradingSystem-WebSample-0.4.zip` and the prior clean archives and Git tags. For independent review, share the tracked `Frontend/` and `Backend/` files (including dependency manifests, tests, assets and READMEs) plus `Documentation/` and root repository files, or the portable Git bundle. Ignore `dist/`, `.venv/`, `node_modules/`, and generated test output. No native trading source exists yet. Do not share credentials, personal or broker data, private support correspondence, or runtime database contents. The archive is not evidence of an independent review.

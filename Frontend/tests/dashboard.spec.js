@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 
-test('dashboard identifies samples and makes only a read-only status request', async ({ page }) => {
+test('dashboard identifies samples and only reads status and sample data', async ({ page }) => {
   const errors = [];
   const apiCalls = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -9,6 +9,7 @@ test('dashboard identifies samples and makes only a read-only status request', a
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Overview', exact: true })).toBeVisible();
   await expect(page.getByRole('status', { name: 'Web API: Online' })).toBeVisible();
+  await expect(page.getByRole('status', { name: 'Sample data feed: Fresh' })).toBeVisible();
   await expect(page.getByText('MT5 not connected', { exact: true })).toBeVisible();
   await expect(page.getByText('Locked', { exact: true })).toBeVisible();
   await expect(page.getByText('Example data only. This dashboard cannot place orders.')).toBeVisible();
@@ -20,7 +21,11 @@ test('dashboard identifies samples and makes only a read-only status request', a
   await expect(page.locator('.chart-tooltip')).toContainText('UTC · Sample');
   expect(errors).toEqual([]);
   expect(apiCalls.length).toBeGreaterThan(0);
-  for (const call of apiCalls) expect(call).toEqual({ url: new URL('/api/v1/status', page.url()).href, method: 'GET' });
+  expect(new Set(apiCalls.map(call => new URL(call.url).pathname))).toEqual(new Set(['/api/v1/status', '/api/v1/sample-snapshot']));
+  for (const call of apiCalls) {
+    expect(new URL(call.url).origin).toBe(new URL(page.url()).origin);
+    expect(call.method).toBe('GET');
+  }
 });
 
 test('preview instrument and custom intensity persist, with caps validated', async ({ page }) => {

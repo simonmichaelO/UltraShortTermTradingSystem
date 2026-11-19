@@ -1,5 +1,5 @@
-// Illustrative fixtures for the standalone web preview. No market feed, bridge,
-// authentication, strategy engine, or order client is connected to this module.
+// Local preferences and prewritten chart, quote, decision and history examples.
+// Account fields and open positions are delivered by the read-only sample API.
 export const SAMPLE_DATE = 'Nov 17, 2026';
 export const STORAGE_KEY = 'tickframe-preview-v1';
 
@@ -14,17 +14,6 @@ export const SYMBOLS = Object.freeze([
   { code: 'XAUUSD', name: 'Gold / US Dollar', glyph: 'Au', bid: '2,683.22', change: 0.54, spread: 24.0, latency: 62, slippage: 1.3, theme: 'xau' },
 ]);
 export const SYMBOL_BY_CODE = Object.freeze(Object.fromEntries(SYMBOLS.map(s => [s.code, s])));
-
-export const ACCOUNT = Object.freeze({
-  balance: 2442.92, equity: 2486.72, openingEquity: 2400, peak: 2504.75,
-  freeMargin: 1942.48, usedMargin: 544.24, realised: 42.92, floating: 43.80,
-});
-export const METRICS = Object.freeze({
-  dailyChange: ACCOUNT.equity - ACCOUNT.openingEquity,
-  dailyPercent: (ACCOUNT.equity / ACCOUNT.openingEquity - 1) * 100,
-  drawdownPercent: (1 - ACCOUNT.equity / ACCOUNT.peak) * 100,
-  marginPercent: (ACCOUNT.usedMargin / ACCOUNT.equity) * 100,
-});
 
 export const LIMITS = Object.freeze({
   tradeRisk: 10, openRisk: 40, marginLimit: 70, dailyDrawdown: 40, dailyTarget: 1500, maxPreviewPositions: 5,
@@ -108,12 +97,6 @@ const USD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' 
 export const usd = value => USD.format(value);
 export const signedUsd = value => `${value < 0 ? '−' : value > 0 ? '+' : ''}${USD.format(Math.abs(value))}`;
 export const signedPercent = value => `${value < 0 ? '−' : value > 0 ? '+' : ''}${Math.abs(value).toFixed(2)}%`;
-
-export const POSITIONS = Object.freeze([
-  { id: 'S-1048', symbol: 'EURUSD', side: 'BUY', volume: 0.12, entry: '1.08624', current: '1.08892', sl: '1.08645', tp: '1.09080', net: 31.24, duration: '2m 18s', strategy: 'Momentum breakout', time: '14:28:14', trailing: 'Stop has moved up', rationale: 'Illustrative breakout above the recent range, with a structural trailing stop written into the fixture.' },
-  { id: 'S-1047', symbol: 'GBPUSD', side: 'SELL', volume: 0.04, entry: '1.27186', current: '1.27351', sl: '1.27420', tp: '1.26890', net: -6.98, duration: '4m 06s', strategy: 'Range reversion', time: '14:26:26', trailing: 'Initial stop', rationale: 'Illustrative reversion setup. The quote has moved against the hypothetical position; the initial stop is unchanged.' },
-  { id: 'S-1045', symbol: 'XAUUSD', side: 'BUY', volume: 0.02, entry: '2,673.22', current: '2,683.22', sl: '2,675.40', tp: '2,689.70', net: 19.54, duration: '6m 43s', strategy: 'Volatility expansion', time: '14:23:49', trailing: 'Stop has moved up', rationale: 'Illustrative gold position after a volatility expansion. The fixture shows a hypothetical cost-adjusted gain, not a broker fill.' },
-]);
 
 export const HISTORY = Object.freeze([
   { id: 'S-1044', symbol: 'EURUSD', side: 'BUY', volume: 0.08, entry: '1.08650', exit: '1.08826', day: 'Nov 17', time: '14:18:12', duration: '1m 36s', gross: 14.08, commission: 0.56, strategy: 'Momentum breakout', reason: 'Momentum faded' },

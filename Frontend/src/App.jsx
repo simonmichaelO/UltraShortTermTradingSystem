@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Check, FlaskConical, RefreshCcw, X } from 'lucide-react';
 import { ALERTS, DEFAULT_CONFIG, loadConfig, saveConfig } from './services/preview-model.js';
 import { usePreviewStatus } from './hooks/usePreviewStatus.js';
+import { useSampleFeed } from './hooks/useSampleFeed.js';
 import { NAV_ITEMS, Sidebar, Topbar } from './components/Shell.jsx';
 import { SimulationBanner } from './components/Portfolio.jsx';
+import { SampleFeed } from './components/SampleFeed.jsx';
 import { AlertsDialog, ControlsDialog, EmergencyDialog, PositionDialog } from './components/Dialogs.jsx';
 import { Dialog } from './components/ui.jsx';
 import { AnalyticsView, ControlsButton, HistoryView, Overview, OverviewHero, PageHero, PositionsView, SettingsView, ShadowView } from './pages/Views.jsx';
@@ -15,6 +17,7 @@ const PAGE_INFO = {
   shadow: ['Shadow mode', 'See how the dashboard separates hypothetical signals from broker executions.'],
   settings: ['Settings', 'Review the preview configuration and notification preferences.'],
 };
+const FEED_PAGES = new Set(['overview', 'positions', 'analytics']);
 const NAV_IDS = new Set(NAV_ITEMS.map(item => item.id));
 function readPage() {
   const hash = window.location.hash.slice(1);
@@ -26,6 +29,7 @@ function previewStorage() {
 
 export default function App() {
   const webStatus = usePreviewStatus();
+  const sampleFeed = useSampleFeed();
   const [page, setPage] = useState(readPage);
   const [config, setConfig] = useState(() => loadConfig(previewStorage()));
   const [dialog, setDialog] = useState(null);
@@ -58,7 +62,8 @@ export default function App() {
   const closeDialog = () => setDialog(null);
   const showControls = () => setDialog({ type: 'controls' });
   const showStop = () => setDialog({ type: 'stop' });
-  const showPosition = position => setDialog({ type: 'position', position });
+  const showPosition = position => setDialog({ type: 'position', id: position.id });
+  const selectedPosition = dialog?.type === 'position' ? sampleFeed.snapshot?.positions.find(position => position.id === dialog.id) : null;
 
   function applyConfig(next, message) {
     setConfig(next);
@@ -94,20 +99,24 @@ export default function App() {
         {page === 'overview' ? <OverviewHero onControls={showControls} /> : <PageHero title={PAGE_INFO[page][0]} description={PAGE_INFO[page][1]}
           action={page === 'shadow' ? <ControlsButton onClick={showControls} /> : undefined} />}
         <SimulationBanner />
-        {page === 'overview' && <Overview config={config} webStatus={webStatus} onControls={showControls} onSymbol={selectSymbol} onPosition={showPosition} />}
-        {page === 'positions' && <PositionsView onPosition={showPosition} />}
+        {FEED_PAGES.has(page) && <SampleFeed feed={sampleFeed} />}
+        {page === 'overview' && <Overview config={config} webStatus={webStatus} sampleFeed={sampleFeed} onControls={showControls} onSymbol={selectSymbol} onPosition={showPosition} />}
+        {page === 'positions' && <PositionsView sampleFeed={sampleFeed} onPosition={showPosition} />}
         {page === 'history' && <HistoryView />}
-        {page === 'analytics' && <AnalyticsView />}
+        {page === 'analytics' && <AnalyticsView sampleFeed={sampleFeed} />}
         {page === 'shadow' && <ShadowView config={config} onControls={showControls} />}
         {page === 'settings' && <SettingsView config={config} webStatus={webStatus} onControls={showControls} onReset={() => setDialog({ type: 'reset' })}
           onAlertsToggle={dashboardAlerts => applyConfig({ ...config, dashboardAlerts }, dashboardAlerts ? 'Dashboard indicators on.' : 'Dashboard indicators off.')} />}
-        <footer className="workspace-footer"><span><FlaskConical size={13} /> Tickframe preview <span>·</span> v0.2</span><span>Sample data <span>·</span> No broker connection</span></footer>
+        <footer className="workspace-footer"><span><FlaskConical size={13} /> Tickframe preview <span>·</span> v0.4</span><span>Sample data <span>·</span> No broker connection</span></footer>
       </main>
     </div>
     {dialog?.type === 'controls' && <ControlsDialog config={config} onClose={closeDialog} onEmergency={showStop}
       onApply={next => { applyConfig(next, 'Preview settings applied.'); closeDialog(); }} />}
     {dialog?.type === 'stop' && <EmergencyDialog latched={config.emergency} onToggle={changeStop} onClose={closeDialog} />}
-    {dialog?.type === 'position' && <PositionDialog position={dialog.position} onClose={closeDialog} />}
+    {dialog?.type === 'position' && (selectedPosition ? <PositionDialog position={selectedPosition} phase={sampleFeed.phase} onClose={closeDialog} /> :
+      <Dialog title="Sample position unavailable" subtitle="Read-only preview" onClose={closeDialog}>
+        <div className="drawer-body"><p>This position is not in the latest available sample.</p></div>
+      </Dialog>)}
     {dialog?.type === 'alerts' && <AlertsDialog alerts={alerts} unread={unread} enabled={config.dashboardAlerts} onRead={() => setUnread(0)} onClose={closeDialog} />}
     {dialog?.type === 'reset' && <Dialog title="Reset preview settings?" subtitle="This browser only" type="modal" icon={RefreshCcw} onClose={closeDialog}>
       <div className="drawer-body modal-body"><p>Restore the initial fixture preferences, including the selected symbol, intensity, preview stop and dashboard indicators. No account or broker settings are affected.</p></div>

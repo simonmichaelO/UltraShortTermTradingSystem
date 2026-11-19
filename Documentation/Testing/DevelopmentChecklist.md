@@ -1,6 +1,6 @@
 # Development checklist and test plan
 
-**Status:** Stage 1 broker verification remains pending. At the user’s request, the [web preview and status API](WebStatusChecks.md) and the [separate Access Lab](AuthLabChecks.md) were developed early using fixtures; neither completes Stage 6 or bypass any broker, safety or integration gate. The documentation and local repository are not a broker runtime validation. Items below refer to this project's code and environment, not to a vendor's claims. Record the date, version, result and sanitized evidence with each completed check.
+**Status:** Stage 1 broker verification remains pending. At the user’s request, the [read-only web status and sample preview](WebSampleChecks.md) and the [separate Access Lab](AuthLabChecks.md) were developed early using fixtures; neither completes Stage 6 or bypasses any broker, safety or integration gate. The documentation and local repository are not a broker runtime validation. Items below refer to this project's code and environment, not to a vendor's claims. Record the date, version, result and sanitized evidence with each completed check.
 
 ## Stage 1 — exit checklist
 

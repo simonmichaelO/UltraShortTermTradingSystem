@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowRight, CalendarDays, Download, FlaskConical, Link2Off, LockKeyhole, Settings2, SlidersHorizontal } from 'lucide-react';
-import { ACCOUNT, HISTORY, LIMITS, POSITIONS, SAMPLE_DATE, SYMBOLS, SYMBOL_BY_CODE,
+import { HISTORY, LIMITS, SAMPLE_DATE, SYMBOLS, SYMBOL_BY_CODE,
   filterBySymbol, historyCsv, previewMode, signedUsd, usd } from '../services/preview-model.js';
 import { AccountStats, DecisionsPanel, EngineStatus, MetricList, PositionsPanel, Side, Watchlist } from '../components/Portfolio.jsx';
 import { EquityChart } from '../components/Charts.jsx';
@@ -20,18 +20,18 @@ export function ControlsButton({ onClick }) {
 
 export function OverviewHero({ onControls }) {
   return <PageHero title="Overview" description="Account performance, positions and execution at a glance." action={<>
-    <span className="date-chip" title="Fixed date of the sample snapshot"><CalendarDays size={16} /> {SAMPLE_DATE}</span>
+    <span className="date-chip" title="Date of the prewritten chart and market examples"><CalendarDays size={16} /> {SAMPLE_DATE}</span>
     <ControlsButton onClick={onControls} />
   </>} />;
 }
 
-export function Overview({ config, webStatus, onControls, onSymbol, onPosition }) {
+export function Overview({ config, webStatus, sampleFeed, onControls, onSymbol, onPosition }) {
   return <div className="overview-content">
-    <AccountStats />
+    <AccountStats feed={sampleFeed} />
     <div className="dashboard-grid primary-grid"><EquityChart /><EngineStatus config={config} webStatus={webStatus} onControls={onControls} /></div>
     <div className="dashboard-grid secondary-grid">
       <div className="panel-stack">
-        <PositionsPanel positions={POSITIONS} onPosition={onPosition} action={<a className="mini-link" href="#positions">View positions <ArrowRight size={15} /></a>} />
+        <PositionsPanel positions={sampleFeed.snapshot?.positions ?? null} phase={sampleFeed.phase} onPosition={onPosition} action={<a className="mini-link" href="#positions">View positions <ArrowRight size={15} /></a>} />
         <DecisionsPanel compact />
       </div>
       <Watchlist selected={config.symbol} onSelect={onSymbol} />
@@ -39,9 +39,10 @@ export function Overview({ config, webStatus, onControls, onSymbol, onPosition }
   </div>;
 }
 
-export function PositionsView({ onPosition }) {
+export function PositionsView({ sampleFeed, onPosition }) {
   const [filter, setFilter] = useState('all');
-  return <PositionsPanel expanded positions={filterBySymbol(POSITIONS, filter)} onPosition={onPosition}
+  return <PositionsPanel expanded phase={sampleFeed.phase} filtered={filter !== 'all'}
+    positions={sampleFeed.snapshot ? filterBySymbol(sampleFeed.snapshot.positions, filter) : null} onPosition={onPosition}
     action={<SymbolSelect value={filter} onChange={setFilter} label="Filter positions by instrument" allowAll compact />} />;
 }
 
@@ -78,7 +79,7 @@ export function HistoryView() {
   </section>;
 }
 
-export function AnalyticsView() {
+export function AnalyticsView({ sampleFeed }) {
   const [selected, setSelected] = useState('all');
   const filtered = filterBySymbol(HISTORY, selected);
   const grouped = SYMBOLS.filter(symbol => selected === 'all' || selected === symbol.code).map(symbol => {
@@ -87,7 +88,7 @@ export function AnalyticsView() {
     return { symbol, count: trades.length, sum, wins: trades.filter(t => t.net > 0).length };
   });
   return <div className="panel-stack">
-    <div className="dashboard-grid primary-grid"><EquityChart /><MetricList /></div>
+    <div className="dashboard-grid primary-grid"><EquityChart /><MetricList feed={sampleFeed} /></div>
     <section className="panel table-panel" aria-labelledby="analytics-heading">
       <PanelHeading id="analytics-heading" title="Per-instrument results" description="Descriptive figures for the sample trades, not performance evidence" action={<SymbolSelect value={selected} onChange={setSelected} label="Filter analytics by instrument" allowAll compact />} />
       <div className="table-scroll" tabIndex={0} aria-label="Scrollable sample analytics"><table className="analytics-table"><thead><tr>

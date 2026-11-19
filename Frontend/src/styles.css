@@ -453,3 +453,23 @@ ul{padding:0;list-style:none}
   .connection-card{display:none}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:0s!important;animation-duration:0s!important}}
+
+/* Preview-only snapshot delivery, independent of the trading-status badge. */
+.sample-feed{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 14px;margin-bottom:var(--gap);border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);min-width:0}
+.sample-feed-stale,.sample-feed-unavailable{border-color:#5a4934}
+.sample-feed-main{display:flex;align-items:flex-start;gap:11px;min-width:0}
+.sample-feed-icon{display:grid;flex:none;place-items:center;width:34px;height:34px;border-radius:8px;color:#b9d5af;border:1px solid #3d4d37;background:#283324}
+.sample-feed-unavailable .sample-feed-icon,.sample-feed-stale .sample-feed-icon{color:var(--amber);border-color:#54432b;background:#302619}
+.sample-feed-copy{min-width:0}
+.sample-feed-title{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;margin-bottom:3px}
+.sample-feed-title h2{font-size:13px;line-height:1.35;white-space:nowrap}
+.sample-feed-copy p{font-size:11px;line-height:1.4;color:var(--soft)}
+.sample-feed-copy p.sample-feed-time{display:flex;flex-wrap:wrap;gap:2px 12px;font:10px/1.45 var(--mono);margin-top:4px;color:var(--muted)}
+.sample-feed-actions{display:flex;align-items:flex-end;gap:7px;flex:none}
+.sample-scenario{display:grid;gap:3px;min-width:0}
+.sample-scenario label{font-size:10px;color:var(--muted);line-height:1.15}
+.sample-scenario select{min-height:33px;padding-block:5px;font-size:11px}
+.sample-refresh.btn{min-height:33px;white-space:nowrap}
+.position-stale{color:var(--amber);font-size:12px;border:1px solid #5a4934;padding:8px 10px;border-radius:7px;margin-bottom:11px}
+@media(max-width:880px){.sample-feed{align-items:flex-start;flex-direction:column;gap:9px}.sample-feed-actions{margin-left:45px}}
+@media(max-width:420px){.sample-feed{padding:10px}.sample-feed-actions{margin-left:0;flex-wrap:wrap}.sample-feed-icon{width:30px;height:30px}}
