@@ -1,6 +1,6 @@
 # Tickframe read-only preview API
 
-This guide covers the regular v0.4 sample dashboard. For passwords and authenticator codes with disposable test identities, use the [separate Access Lab](AuthLab.md).
+This guide covers the regular v0.4 sample dashboard. For passwords and authenticator codes with disposable test identities, use the [separate Access Lab](AuthLab.md). For the offline SQLite exercise, see the [storage verification report](../Documentation/Testing/SQLiteStorageChecks.md); this API does not read or write its database.
 
 FastAPI serves the compiled React preview and two read-only routes from the same origin. Web reachability and delivery of a fictitious sample are checked separately. Neither demonstrates an MT5 connection. There is no SQLite database, trading operation, login, or use of broker credentials in this application.
 

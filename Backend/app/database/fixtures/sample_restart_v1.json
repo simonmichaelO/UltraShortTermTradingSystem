@@ -1,0 +1,62 @@
+{
+  "fixture_id": "tf-example-2026-11-17-step-2",
+  "as_of": "2026-11-17T14:31:32Z",
+  "account": {
+    "currency": "USD",
+    "balance_cents": 244292,
+    "equity_cents": 249176,
+    "opening_equity_cents": 240000,
+    "peak_equity_cents": 250475,
+    "free_margin_cents": 194752,
+    "used_margin_cents": 54424,
+    "realised_pl_cents": 4292,
+    "floating_pl_cents": 4884
+  },
+  "positions": [
+    {
+      "id": "S-1048",
+      "symbol": "EURUSD",
+      "side": "BUY",
+      "volume_centilots": 12,
+      "entry": "1.08624",
+      "current": "1.08934",
+      "sl": "1.08645",
+      "tp": "1.09080",
+      "net_cents": 3628,
+      "opened_at": "2026-11-17T14:28:14Z",
+      "strategy": "Momentum breakout",
+      "trailing": "Stop has moved up",
+      "rationale": "A second fictional observation one minute later, with a prewritten quote and net result. No trade was sent."
+    },
+    {
+      "id": "S-1047",
+      "symbol": "GBPUSD",
+      "side": "SELL",
+      "volume_centilots": 4,
+      "entry": "1.27186",
+      "current": "1.27351",
+      "sl": "1.27420",
+      "tp": "1.26890",
+      "net_cents": -698,
+      "opened_at": "2026-11-17T14:26:26Z",
+      "strategy": "Range reversion",
+      "trailing": "Initial stop",
+      "rationale": "Illustrative reversion setup. The quote has moved against the hypothetical position; the initial stop is unchanged."
+    },
+    {
+      "id": "S-1045",
+      "symbol": "XAUUSD",
+      "side": "BUY",
+      "volume_centilots": 2,
+      "entry": "2673.22",
+      "current": "2683.22",
+      "sl": "2675.40",
+      "tp": "2689.70",
+      "net_cents": 1954,
+      "opened_at": "2026-11-17T14:23:49Z",
+      "strategy": "Volatility expansion",
+      "trailing": "Stop has moved up",
+      "rationale": "Illustrative gold position after a volatility expansion. The fixture shows a hypothetical cost-adjusted gain, not a broker fill."
+    }
+  ]
+}
