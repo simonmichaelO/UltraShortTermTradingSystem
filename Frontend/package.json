@@ -1,14 +1,14 @@
 {
   "name": "tickframe-preview",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "engines": { "node": "^20.19.0 || >=22.12.0" },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test tests/preview-model.test.js",
+    "test": "node --test tests/preview-model.test.js tests/status-api.test.js",
     "test:browser": "playwright test"
   },
   "dependencies": {

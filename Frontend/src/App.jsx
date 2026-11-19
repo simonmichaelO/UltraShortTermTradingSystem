@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, FlaskConical, RefreshCcw, X } from 'lucide-react';
 import { ALERTS, DEFAULT_CONFIG, loadConfig, saveConfig } from './services/preview-model.js';
+import { usePreviewStatus } from './hooks/usePreviewStatus.js';
 import { NAV_ITEMS, Sidebar, Topbar } from './components/Shell.jsx';
 import { SimulationBanner } from './components/Portfolio.jsx';
 import { AlertsDialog, ControlsDialog, EmergencyDialog, PositionDialog } from './components/Dialogs.jsx';
@@ -24,6 +25,7 @@ function previewStorage() {
 }
 
 export default function App() {
+  const webStatus = usePreviewStatus();
   const [page, setPage] = useState(readPage);
   const [config, setConfig] = useState(() => loadConfig(previewStorage()));
   const [dialog, setDialog] = useState(null);
@@ -92,14 +94,14 @@ export default function App() {
         {page === 'overview' ? <OverviewHero onControls={showControls} /> : <PageHero title={PAGE_INFO[page][0]} description={PAGE_INFO[page][1]}
           action={page === 'shadow' ? <ControlsButton onClick={showControls} /> : undefined} />}
         <SimulationBanner />
-        {page === 'overview' && <Overview config={config} onControls={showControls} onSymbol={selectSymbol} onPosition={showPosition} />}
+        {page === 'overview' && <Overview config={config} webStatus={webStatus} onControls={showControls} onSymbol={selectSymbol} onPosition={showPosition} />}
         {page === 'positions' && <PositionsView onPosition={showPosition} />}
         {page === 'history' && <HistoryView />}
         {page === 'analytics' && <AnalyticsView />}
         {page === 'shadow' && <ShadowView config={config} onControls={showControls} />}
-        {page === 'settings' && <SettingsView config={config} onControls={showControls} onReset={() => setDialog({ type: 'reset' })}
+        {page === 'settings' && <SettingsView config={config} webStatus={webStatus} onControls={showControls} onReset={() => setDialog({ type: 'reset' })}
           onAlertsToggle={dashboardAlerts => applyConfig({ ...config, dashboardAlerts }, dashboardAlerts ? 'Dashboard indicators on.' : 'Dashboard indicators off.')} />}
-        <footer className="workspace-footer"><span><FlaskConical size={13} /> Tickframe preview <span>·</span> v0.1</span><span>Sample data <span>·</span> No broker connection</span></footer>
+        <footer className="workspace-footer"><span><FlaskConical size={13} /> Tickframe preview <span>·</span> v0.2</span><span>Sample data <span>·</span> No broker connection</span></footer>
       </main>
     </div>
     {dialog?.type === 'controls' && <ControlsDialog config={config} onClose={closeDialog} onEmergency={showStop}

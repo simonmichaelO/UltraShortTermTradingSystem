@@ -3,6 +3,7 @@ import { Activity, ArrowDownRight, ArrowRight, ArrowUpRight, ChevronRight, Circl
 import { ACCOUNT, DECISIONS, METRICS, SYMBOLS, SYMBOL_BY_CODE, previewMode, signedPercent, signedUsd, usd } from '../services/preview-model.js';
 import { EmptyState, PanelHeading, Pill, SymbolMark } from './ui.jsx';
 import { Sparkline } from './Charts.jsx';
+import { WebStatusRow } from './WebStatus.jsx';
 
 const equityTrend = [5, 7, 6, 10, 9, 13, 10, 16, 15, 20, 18, 23, 22, 26];
 const profitTrend = [4, 6, 4, 9, 12, 10, 11, 8, 13, 16, 14, 19, 17, 22];
@@ -41,10 +42,10 @@ export function AccountStats() {
   </div>;
 }
 
-export function EngineStatus({ config, onControls }) {
+export function EngineStatus({ config, webStatus, onControls }) {
   const instrument = SYMBOL_BY_CODE[config.symbol];
   return <section className="panel engine-panel" aria-labelledby="engine-heading">
-    <PanelHeading id="engine-heading" title="Trading status" description="Terminal and execution overview" action={<Pill tone="neutral" dot>Offline</Pill>} />
+    <PanelHeading id="engine-heading" title="Trading status" description="Terminal and execution overview" action={<Pill tone="neutral" dot>MT5 not connected</Pill>} />
     <div className="engine-content">
       <div className="small-section-heading"><span>ACTIVE INSTRUMENT</span><Crosshair size={13} /></div>
       <button type="button" className="active-instrument" onClick={onControls} aria-label={`Change active instrument, current ${instrument.code}`}>
@@ -54,6 +55,7 @@ export function EngineStatus({ config, onControls }) {
       </button>
       <div className="engine-mode"><span><span className="engine-label-icon"><FlaskConical size={15} /></span>Operating mode</span><Pill tone={config.emergency ? 'red' : config.shadow ? 'violet' : 'neutral'} dot>{previewMode(config)}</Pill></div>
       <div className="engine-mode engine-permission"><span><span className="engine-label-icon"><LockKeyhole size={15} /></span>Live entries</span><span className="permission-text">Locked</span></div>
+      <WebStatusRow status={webStatus} />
       <div className="execution">
         <div className="small-section-heading"><span>EXECUTION SAMPLE</span><span className="execution-label">SIMULATED</span></div>
         <div className="execution-values">

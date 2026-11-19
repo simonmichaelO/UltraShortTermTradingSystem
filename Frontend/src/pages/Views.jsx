@@ -4,6 +4,7 @@ import { ACCOUNT, HISTORY, LIMITS, POSITIONS, SAMPLE_DATE, SYMBOLS, SYMBOL_BY_CO
   filterBySymbol, historyCsv, previewMode, signedUsd, usd } from '../services/preview-model.js';
 import { AccountStats, DecisionsPanel, EngineStatus, MetricList, PositionsPanel, Side, Watchlist } from '../components/Portfolio.jsx';
 import { EquityChart } from '../components/Charts.jsx';
+import { WebStatusDetails } from '../components/WebStatus.jsx';
 import { EmptyState, PanelHeading, Pill, SymbolMark, SymbolSelect, Toggle } from '../components/ui.jsx';
 
 export function PageHero({ title, description, eyebrow = 'TRADING DESK', action }) {
@@ -24,10 +25,10 @@ export function OverviewHero({ onControls }) {
   </>} />;
 }
 
-export function Overview({ config, onControls, onSymbol, onPosition }) {
+export function Overview({ config, webStatus, onControls, onSymbol, onPosition }) {
   return <div className="overview-content">
     <AccountStats />
-    <div className="dashboard-grid primary-grid"><EquityChart /><EngineStatus config={config} onControls={onControls} /></div>
+    <div className="dashboard-grid primary-grid"><EquityChart /><EngineStatus config={config} webStatus={webStatus} onControls={onControls} /></div>
     <div className="dashboard-grid secondary-grid">
       <div className="panel-stack">
         <PositionsPanel positions={POSITIONS} onPosition={onPosition} action={<a className="mini-link" href="#positions">View positions <ArrowRight size={15} /></a>} />
@@ -113,7 +114,7 @@ export function ShadowView({ config, onControls }) {
   </div>;
 }
 
-export function SettingsView({ config, onControls, onAlertsToggle, onReset }) {
+export function SettingsView({ config, webStatus, onControls, onAlertsToggle, onReset }) {
   return <div className="settings-grid">
     <section className="panel summary-panel" aria-labelledby="config-heading">
       <PanelHeading id="config-heading" title="Effective preview settings" description="Local preferences, not broker settings" action={<Settings2 size={19} className="muted" />} />
@@ -135,7 +136,8 @@ export function SettingsView({ config, onControls, onAlertsToggle, onReset }) {
         </dl>
       </section>
       <section className="panel summary-panel">
-        <PanelHeading title="Connection and access" description="Not part of this standalone preview" />
+        <PanelHeading title="Connection and access" description="Web status is separate from terminal access" />
+        <WebStatusDetails status={webStatus} />
         <div className="connection-checks"><span><Link2Off size={16} /> MT5 bridge disconnected</span><span><LockKeyhole size={16} /> Login and two-factor not configured</span></div>
         <p className="panel-note">Do not enter broker credentials. There are no endpoints or forms for real accounts here.</p>
       </section>

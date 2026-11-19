@@ -1,13 +1,16 @@
 import { readFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 
-test('dashboard identifies samples and changes equity range without an API', async ({ page }) => {
+test('dashboard identifies samples and makes only a read-only status request', async ({ page }) => {
   const errors = [];
   const apiCalls = [];
   page.on('pageerror', error => errors.push(error.message));
-  page.on('request', request => { if (['xhr', 'fetch'].includes(request.resourceType())) apiCalls.push(request.url()); });
+  page.on('request', request => { if (['xhr', 'fetch'].includes(request.resourceType())) apiCalls.push({ url: request.url(), method: request.method() }); });
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Overview', exact: true })).toBeVisible();
+  await expect(page.getByRole('status', { name: 'Web API: Online' })).toBeVisible();
+  await expect(page.getByText('MT5 not connected', { exact: true })).toBeVisible();
+  await expect(page.getByText('Locked', { exact: true })).toBeVisible();
   await expect(page.getByText('Example data only. This dashboard cannot place orders.')).toBeVisible();
   await expect(page.getByRole('button', { name: /^Select \w+ for preview$/ })).toHaveCount(8);
   await expect(page.getByRole('button', { name: '7D', exact: true })).toHaveAttribute('aria-pressed', 'true');
@@ -16,7 +19,8 @@ test('dashboard identifies samples and changes equity range without an API', asy
   await page.getByRole('group', { name: /Simulated equity, 30D/ }).press('ArrowLeft');
   await expect(page.locator('.chart-tooltip')).toContainText('UTC · Sample');
   expect(errors).toEqual([]);
-  expect(apiCalls).toEqual([]);
+  expect(apiCalls.length).toBeGreaterThan(0);
+  for (const call of apiCalls) expect(call).toEqual({ url: new URL('/api/v1/status', page.url()).href, method: 'GET' });
 });
 
 test('preview instrument and custom intensity persist, with caps validated', async ({ page }) => {
@@ -117,4 +121,38 @@ test('phone viewport has no page overflow and mobile menu opens position details
   await detail.getByRole('button', { name: 'Close dialog' }).click();
   await expect(detail).not.toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+});
+
+
+test('unreachable status API preserves sample positions and blocks any live claim', async ({ page }) => {
+  await page.route('**/api/v1/status', route => route.fulfill({ status: 503, json: {} }));
+  await page.goto('/');
+  await expect(page.getByRole('status', { name: 'Web API: Unavailable' })).toBeVisible();
+  await expect(page.getByText('MT5 not connected', { exact: true })).toBeVisible();
+  await expect(page.getByText('Locked', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Review EURUSD sample position' })).toBeVisible();
+});
+
+test('invalid API data is not treated as connected', async ({ page }) => {
+  await page.route('**/api/v1/status', route => route.fulfill({ json: { schema_version: 1, real_controls_available: true } }));
+  await page.goto('/#settings');
+  await expect(page.getByRole('status', { name: 'Web API: Invalid response' })).toBeVisible();
+  await expect(page.getByText('MT5 bridge disconnected')).toBeVisible();
+});
+
+test('status goes stale after losing the API, then recovers without resetting preferences', async ({ page }) => {
+  await page.clock.install();
+  let responding = true;
+  await page.route('**/api/v1/status', route => responding ? route.continue() : route.abort());
+  await page.goto('/');
+  await expect(page.getByRole('status', { name: 'Web API: Online' })).toBeVisible();
+  await page.getByRole('button', { name: 'Select GBPUSD for preview' }).click();
+  responding = false;
+  await page.clock.fastForward(13_000);
+  await expect(page.getByRole('status', { name: 'Web API: Status stale' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /current GBPUSD/ })).toBeVisible();
+  responding = true;
+  await page.clock.fastForward(13_000);
+  await expect(page.getByRole('status', { name: 'Web API: Online' })).toBeVisible();
+  await expect(page.getByText('Locked', { exact: true })).toBeVisible();
 });

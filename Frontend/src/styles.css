@@ -194,9 +194,12 @@ ul{padding:0;list-style:none}
 .mark-aud{background:#3a80972b;color:#a3e3fb;border-color:#77d1f11d}
 .mark-nzd{background:#4889682b;color:#a1eac4;border-color:#95ecc81f}
 .mark-xau{background:#bd93432b;color:#f3d68f;border-color:#e0b95c25}
-.engine-mode{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:36px;color:#bdc4d0;font-size:12px}
+.engine-mode{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:31px;color:#bdc4d0;font-size:12px}
 .engine-mode>span:first-child{display:flex;align-items:center;gap:8px;white-space:nowrap;min-width:0}
 .engine-label-icon{color:#8a97a8}
+.web-status-indicator{display:inline-flex;flex:none}
+.api-details{padding:0 18px 12px}
+.api-details p{font-size:11px;line-height:1.45;color:var(--muted);margin-top:3px}
 .permission-text{font:10.5px/1.4 var(--mono);color:#adb6c4;padding-right:2px}
 .execution{margin-top:7px;padding-top:12px;border-top:1px solid var(--line)}
 .execution-label{color:#a1ab97;font-size:9px;letter-spacing:.06em}

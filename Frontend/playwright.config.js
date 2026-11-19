@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test';
 
-// Start the preview in another terminal before running this test suite.
+// Build the UI and start the integrated FastAPI preview in another terminal first.
 export default defineConfig({
   testDir: './tests',
   testMatch: '**/*.spec.js',

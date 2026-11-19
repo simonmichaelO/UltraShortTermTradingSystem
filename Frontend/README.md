@@ -1,6 +1,6 @@
-# Tickframe web preview · v0.1
+# Tickframe web preview · v0.2
 
-A standalone, responsive React + Vite interface with **synthetic fixtures only**. Use the Arena live preview first; nothing needs installing to view it there. There is no Exness connection, FastAPI service, database, implemented authentication, broker control or strategy engine in this build. Local controls change only the browser's preview preferences. Do not add credentials or use this as a production console.
+A responsive React + Vite interface with **synthetic trading fixtures only**. The Arena preview also runs the [read-only FastAPI status service](../Backend/README.md). Nothing needs installing to view it there. There is no Exness connection, database, implemented authentication, broker control or strategy engine in this build. Local controls change only the browser's preview preferences. Do not add credentials or use this as a production console.
 
 ## First things to try
 
@@ -11,9 +11,9 @@ A standalone, responsive React + Vite interface with **synthetic fixtures only**
 
 ## Run on Windows (optional)
 
-The online preview is enough to review this milestone. These steps are for running your own source copy. You do not need MT5, Python, or a broker account for these steps.
+The online preview is enough to review this milestone. These steps run the UI by itself from your source copy; you do not need MT5, Python or a broker account. To also run the status API, follow the [combined preview guide](../Backend/README.md#run-the-combined-preview-on-windows-optional).
 
-1. Save the **WebPreview** source ZIP in **Downloads**. In File Explorer right-click the ZIP → **Extract All…**. Extract to a folder you can find, for example `Downloads\Tickframe-WebPreview`. The project is under `UltraShortTermTradingSystem\Frontend`. Do not overwrite an existing working copy; this is a separate snapshot. Keep the portable Git bundle if you want to retain the history; the method in the [Windows project guide](../Documentation/Installation/WindowsSetup.md#git-and-the-starter-package--after-the-demo-check) applies using `UltraShortTermTradingSystem-web-preview.bundle` instead of the Stage 1 bundle and a new destination folder.
+1. Save the **WebStatus** source ZIP in **Downloads**. In File Explorer right-click the ZIP → **Extract All…**. Extract to a folder you can find, for example `Downloads\Tickframe-WebStatus`. The project is under `UltraShortTermTradingSystem\Frontend`. Do not overwrite an existing working copy; this is a separate snapshot. Keep the portable Git bundle if you want to retain the history; the method in the [Windows project guide](../Documentation/Installation/WindowsSetup.md#git-and-the-starter-package--after-the-demo-check) applies using `UltraShortTermTradingSystem-web-status.bundle` instead of the Stage 1 bundle and a new destination folder.
 2. At [nodejs.org](https://nodejs.org/en/download) select a current **LTS** version (22.12+), Windows **Installer (.msi)** and your architecture, normally **x64**. Node runs the development tools; npm installs the pinned project packages. Open the installer → **Next** → accept the license → keep default features, including npm and adding to PATH → **Install → Finish**. No extra native-build tools are required. Open a **new** PowerShell from Start and verify:
 
    ```powershell
@@ -28,7 +28,7 @@ The online preview is enough to review this milestone. These steps are for runni
    npm.cmd run dev
    ```
 
-4. In your browser, open the **Local** address printed by Vite, normally `http://localhost:5173/`. Success means the **Tickframe Overview** renders with **Simulation preview** visible. Keep the PowerShell window open while using the site; press **Ctrl+C** in it to stop.
+4. In your browser, open the **Local** address printed by Vite, normally `http://localhost:5173/`. Success means the **Tickframe Overview** renders with **Simulation preview** visible. The Web API will not be online in this UI-only mode. Keep the PowerShell window open while using the site; press **Ctrl+C** in it to stop.
 
 | If this happens | What to do |
 |---|---|
@@ -41,7 +41,7 @@ The online preview is enough to review this milestone. These steps are for runni
 
 - Entry: `index.html`, `src/main.jsx`, `src/App.jsx`. Components and views live in `src/components/` and `src/pages/`; `src/services/preview-model.js` contains the labeled sample data and local validation. `src/styles.css` and bundled fonts control the responsive layout; font licenses are checked in with the assets.
 - `npm.cmd run build` creates a static bundle in `dist/`. `npm.cmd test` runs the fixture/setting tests.
-- For interactive tests, keep the preview running on port 5173 and open another terminal in `Frontend`. Run `npx.cmd playwright install chromium`, then `npm.cmd run test:browser`. Set `$env:PREVIEW_BASE_URL` if using another port. In Linux CI, Playwright may also need its browser system libraries.
-- The Vite `*.e2b.app` allowlist is for Arena's hosted fixture preview only. The default Windows dev command listens locally. Neither server mode is a production deployment or an authentication boundary.
+- For interactive tests, run the **combined preview** on port 5173 using the Backend guide, and open another terminal in `Frontend`. Run `npx.cmd playwright install chromium`, then `npm.cmd run test:browser`. Set `$env:PREVIEW_BASE_URL` if using another port. In Linux CI, Playwright may also need its browser system libraries.
+- In Arena the combined preview is served by FastAPI. The Vite `*.e2b.app` allowlist is only for fixture-only frontend development in Arena. The default Windows dev command listens locally. Neither mode is a production deployment or an authentication boundary.
 
-Next web milestone: a versioned, read-only FastAPI status/data contract and explicit unconnected/stale/error states backed by tested responses. Add secure login and two-factor, the native EA bridge, and verified control acknowledgements before allowing any real control path. Production controls and risk limits must be independently validated by the EA, not trusted from this form.
+The same-origin status client is `src/services/status-api.js`, its polling hook is `src/hooks/usePreviewStatus.js`, and badges are in `src/components/WebStatus.jsx`. Next: secure login and two-factor before exposing anything private, followed by the native EA bridge and verified control acknowledgements before any real control path. Production controls and risk limits must be independently validated by the EA, not trusted from this form.

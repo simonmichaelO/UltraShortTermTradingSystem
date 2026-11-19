@@ -1,6 +1,6 @@
 # System architecture — Stage 1 design
 
-**Status:** design only. See the [master specification](../MasterSpecification.md) for requirements and the [project record](../Decisions/ProjectRecord.md) for decisions, status and approvals. A [standalone web preview](../../Frontend/README.md) exists as a fixture-only slice; no trading program or operational API is installed. The architecture below governs later integration.
+**Status:** design only. See the [master specification](../MasterSpecification.md) for requirements and the [project record](../Decisions/ProjectRecord.md) for decisions, status and approvals. A [web preview](../../Frontend/README.md) uses prewritten fixtures and a [read-only status API](../../Backend/README.md). It does not implement the EA, database, authentication or command protocol defined below.
 
 ## Ownership of decisions
 
