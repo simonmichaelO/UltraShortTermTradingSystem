@@ -5,7 +5,8 @@
 ## Hosted operator checks · in progress
 
 - **Delayed sample — passed (operator reported).** The operator confirmed that choosing **Delayed sample** displayed **Stale** while the sample amounts stayed visible.
-- **Next: Simulated outage.** In **Tickframe sample dashboard v0.4 → Overview → Sample data feed → Delivery test**, choose **Simulated outage**. Expect **Unavailable** and dashes instead of account values. Awaiting the operator's report. This is local to the preview and cannot affect an account.
+- **Simulated outage — passed (operator reported).** The operator confirmed **Unavailable** and dashes instead of account amounts. The no-position-count behaviour is covered by the automated browser checks.
+- **Next: return to Normal delivery.** In **Tickframe sample dashboard v0.4 → Overview → Sample data feed → Delivery test**, choose **Normal delivery**. Expect **Fresh** and the sample amounts to return. Awaiting the operator's report.
 
 ## Expected display
 
