@@ -9,7 +9,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --test tests/preview-model.test.js tests/status-api.test.js",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "build:auth": "vite build --config AuthLab/vite.config.js",
+    "test:auth-browser": "playwright test --config playwright.auth.config.js"
   },
   "dependencies": {
     "lucide-react": "1.76.0",

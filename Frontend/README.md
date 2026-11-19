@@ -1,5 +1,7 @@
 # Tickframe web preview · v0.2
 
+This guide covers the regular dashboard, which remains fixture-only. The separate [Access Lab](../Documentation/UserGuide/AccessLab.md) uses `npm run build:auth` and does not change this dashboard.
+
 A responsive React + Vite interface with **synthetic trading fixtures only**. The Arena preview also runs the [read-only FastAPI status service](../Backend/README.md). Nothing needs installing to view it there. There is no Exness connection, database, implemented authentication, broker control or strategy engine in this build. Local controls change only the browser's preview preferences. Do not add credentials or use this as a production console.
 
 ## First things to try

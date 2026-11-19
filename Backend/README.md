@@ -1,5 +1,7 @@
 # Tickframe read-only preview API
 
+This guide covers the regular v0.2 dashboard. For passwords and authenticator codes with disposable test identities, use the [separate Access Lab](AuthLab.md).
+
 A small FastAPI service provides **web availability** and **data provenance**, not a broker connection. In this milestone it serves the compiled React UI and `GET /api/v1/status` from the same origin. There is no SQLite database, MT5 bridge, trading operation, user login, or use of broker credentials.
 
 ## Contract v1
