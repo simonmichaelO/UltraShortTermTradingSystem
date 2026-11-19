@@ -3,12 +3,12 @@
 | Field | Current value |
 |---|---|
 | Date | 17 November 2026 |
-| Stage | Early web build: regular preview confirmed by operator; operator reported successful sign-in to the disconnected, tab-only Access Lab v0.3.2. Stage 1 Windows/broker evidence is pending. |
+| Stage | Early web build: regular preview confirmed by operator; operator confirmed sign-in and sign-out in the disconnected, tab-only Access Lab v0.3.2. Stage 1 Windows/broker evidence is pending. |
 | Starter version | `stage1-v0.1` (documentation and non-executable scaffold) |
 | EA, API and dashboard versions | EA: not started. Regular preview `web-status-v0.2`; separate `web-auth-lab-v0.3.2`, test identities only. Both use synthetic data. |
 | Source control | Local Git on `main` with Stage 1, web preview, web status, Access Lab and its cookie-compatibility patches. No remote created or pushed. |
 | Requirements | [Master specification](../MasterSpecification.md), preserved separately from provisional design choices |
-| Current practical task | The operator reported **signed in** in the hosted lab. Click **Sign out** in **Test workspace** and confirm the **Signed out** notice. |
+| Current practical task | Hosted lab sign-in and sign-out confirmed. Web acceptance check complete; await approval for a read-only API for sample account and position data. |
 
 ## Decisions and scope
 
@@ -31,7 +31,7 @@
 
 **Files updated:** `Backend/app/auth_lab.py`, `Backend/tests/test_auth_lab.py`, `Frontend/AuthLab/index.html`, `Frontend/AuthLab/src/{AuthLab.jsx,lab.css}`, `Frontend/AuthLab/tests/lab.spec.js`, `README.md`, `Backend/AuthLab.md`, `Documentation/UserGuide/AccessLab.md`, `Documentation/Testing/AuthLabChecks.md` and this record. No EA, risk, regular dashboard or lab authentication policy changes.
 
-The second operator report still said the setup cookie was unavailable. The source of that repeated path is not confirmed. The new hosted form never calls the cookie transport; the server specifies its profile in the HTML and the build is on a fresh preview origin. The [v0.3.2 test results](../Testing/AuthLabChecks.md#hosted-default-patch--v032) were obtained locally. The operator subsequently reported successful hosted sign-in. Manual sign-out confirmation is pending.
+The second operator report still said the setup cookie was unavailable. The source of that repeated path is not confirmed. The new hosted form never calls the cookie transport; the server specifies its profile in the HTML and the build is on a fresh preview origin. The [v0.3.2 test results](../Testing/AuthLabChecks.md#hosted-default-patch--v032) were obtained locally. The operator subsequently confirmed successful sign-in and sign-out in the hosted lab.
 
 ## Access Lab cookie compatibility · v0.3.1
 
@@ -99,6 +99,6 @@ The setup guide leads into the checklist. The checklist obtains the account evid
 
 ## Next and independent review
 
-The operator confirmed the v0.2 web status. The operator also reported successful sign-in in the v0.3.2 hosted Access Lab. Next, confirm sign-out in that preview. Secure operational identity/config storage, account recovery, permissions and real deployment/security review remain blocked on later requirements and evidence. No broker data or engine command path is enabled. Stage 1 broker work can resume separately: Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git. Broker-facing stages remain blocked until their gates pass.
+The operator confirmed the v0.2 web status. The operator also confirmed sign-in and sign-out in the v0.3.2 hosted Access Lab. The next proposed web slice, pending approval, is a read-only API for sample account and position data with explicit freshness and unavailable states. This would not connect MT5 or complete Stage 6. Secure operational identity/config storage, account recovery, permissions and real deployment/security review remain blocked on later requirements and evidence. No broker data or engine command path is enabled. Stage 1 broker work can resume separately: Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git. Broker-facing stages remain blocked until their gates pass.
 
 Retain the Git milestones and clean WebAuthLab v0.3.2 source archive. For independent review, share the tracked `Frontend/` and `Backend/` files (including dependencies, tests, assets and READMEs) plus `Documentation/` and root repository files; alternatively share the clean bundle. Ignore `dist/`, `.venv/`, `node_modules/`, and generated test output. No native trading source exists yet. Do not share passwords, tokens, personal data, broker quote files, detailed trade exports, private support correspondence or runtime database contents. The archive is not evidence of an independent review.
