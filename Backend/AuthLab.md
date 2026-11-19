@@ -1,4 +1,4 @@
-# Run the isolated Access Lab · v0.3
+# Run the isolated Access Lab · v0.3.1
 
 The lab is a separate FastAPI application and React build. It creates disposable test identities and has only one permission: read a synthetic status card and that test identity’s recent sign-in events. No existing Tickframe account is created or modified. The regular [v0.2 preview](README.md) stays unauthenticated and fixture-only; it never mounts the lab router. See the [click-through guide](../Documentation/UserGuide/AccessLab.md) for the hosted version. **Do not start a local copy just to use the Arena preview.**
 
@@ -44,6 +44,14 @@ Install Node.js and Python 3.13 if needed using the [official download links and
 - **Sessions and browser origin.** Cookies carry opaque random tokens with only digests in server state. Secrets are not put in URLs, browser storage or logs. Local mode requires a loopback peer and `Host`, sends HttpOnly/SameSite=Strict cookies, and denies framing on `/lab`. Arena mode uses HTTPS from the Arena preview proxy, `Secure`/`HttpOnly` host-only `__Host-` cookies and `SameSite=None; Partitioned` so the preview can work in a supported embedded browser. The form page permits only its own origin and Arena’s `arena.ai`/`lmarena.ai` origins as frame ancestors. State-changing requests require an exact same-origin `Origin`, same-origin Fetch Metadata if present, JSON under 4 KiB, and no CORS. The service does not trust forwarded identity headers. Neither mode exposes a broker action.
 - **Not a deployment claim.** This lab has no durable, encrypted credential storage, operational roles, protected broker configuration, backup/recovery or action/re-authorisation policy. Satisfying those, testing a real TLS deployment and reviewing the design independently are separate gates. Do not repurpose Arena’s framed test profile for production.
 
+## Optional tab-only transport (Arena test lab only)
+
+Some preview/browser combinations do not return the setup cookie. The **Create test account without cookies** and **Sign in without cookies** buttons use the separate `/api/v1/auth/tab/` routes, mounted **only** in `arena` mode. No change to the browser’s cookie policy or the standard HttpOnly-cookie flow is required. The tab transport does not send or issue cookies.
+
+- Enrollment, password challenge and verified session each get a different opaque handle. The server scopes their digests to this transport and validates the correct stage, expiry, both factors, role and original attempt limits. A setup or challenge handle cannot read the workspace; a tab handle cannot act as a cookie and vice versa.
+- The client sends handles only in same-origin JSON POST bodies (never URLs, browser storage or logs). The active handle stays in the current document’s JavaScript memory; a refresh, close or restored history page cannot resume that flow. Explicit sign-out revokes it on the server; abandoning a page does not extend its normal expiry. Keep the preview open during the walkthrough.
+- This is an isolated test convenience, not production session design. A script running in the lab origin could use the current document’s proof; the tab transport is not equivalent to HttpOnly. The lab retains the restricted CSP, origin guard and sample-only role. The loopback lab and regular dashboard have no tab auth route. Never use this transport with live data, real credentials or broker controls.
+
 ## Tests
 
 From `Backend` on Windows, with the environment from Step 2:
@@ -60,4 +68,4 @@ npx.cmd playwright install chromium
 npm.cmd run test:auth-browser
 ```
 
-The loopback run skips the explicitly separate local TLS/iframe case. The tests create disposable accounts at runtime, not fixed test credentials. Browser screenshots, video and traces are off. If repeating test runs rapidly, wait a minute or restart the **local test** server to clear the global time window. See the [test report](../Documentation/Testing/AuthLabChecks.md) for the observed results, separate TLS replay and what remains untested.
+The loopback run skips the explicitly separate TLS/iframe and tab-only cases. The tests create disposable accounts at runtime, not fixed test credentials. Browser screenshots, video and traces are off. If repeating test runs rapidly, wait a minute or restart the **local test** server to clear the global time window. See the [test report](../Documentation/Testing/AuthLabChecks.md) for the observed results, separate TLS replay and what remains untested.

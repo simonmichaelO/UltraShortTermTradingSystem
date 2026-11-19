@@ -179,3 +179,30 @@ test('Arena iframe mode keeps its own partitioned session with third-party cooki
   await frame.getByRole('button', { name: 'Sign out', exact: true }).click();
   await expect(frame.getByRole('status')).toContainText('Signed out.');
 });
+
+test('cookie-free retry opens setup and completes two-factor sign-in without browser cookies', async ({ page, context }) => {
+  test.skip(!process.env.AUTH_LAB_TLS_TEST_PORT, 'Tab-only mode is only enabled in the TLS preview.');
+  await page.route('**/api/v1/auth/setup', route => route.fulfill({ status: 401, json: { error: 'setup_cookie_unavailable' } }));
+  await page.goto('/lab');
+  await page.getByRole('button', { name: 'Create test account', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Choose Create test account without cookies');
+  await context.clearCookies();
+  const issued = page.waitForResponse(res => new URL(res.url()).pathname === `${API}/tab/enroll`);
+  await page.getByRole('button', { name: 'Create test account without cookies', exact: true }).click();
+  const response = await issued;
+  expect(response.status()).toBe(201);
+  expect(await response.headerValue('set-cookie')).toBe(null);
+  const setup = await response.json();
+  await expect(page.getByRole('heading', { name: 'Set up your authenticator' })).toBeVisible();
+  await expect(page.getByText('This tab only.', { exact: true })).toBeVisible();
+  const step = await pairIdentity(page, setup);
+  await submitCorrectPassword(page);
+  expect(await page.evaluate(path => fetch(path).then(res => res.status), WORKSPACE)).toBe(401);
+  await submitFreshCode(page, setup, step);
+  await expect(page.getByText('Locked', { exact: true })).toBeVisible();
+  expect((await context.cookies(page.url())).length).toBe(0);
+  expect(await page.evaluate(() => localStorage.length === 0 && sessionStorage.length === 0)).toBe(true);
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Sign in without cookies', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Test workspace.' })).toHaveCount(0);
+});

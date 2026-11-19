@@ -2,7 +2,15 @@
 
 **Scope:** an isolated test-only login with password verification and a fresh authenticator code. The starter EA, public v0.2 dashboard, risk values, broker gates and master specification are unchanged. Nothing can send an order or load broker data. This does not complete product security or roadmap Stage 6.
 
-## Automated results
+## Cookie compatibility patch · v0.3.1
+
+The operator reported the setup-cookie error at account creation in the hosted lab. The exact reason that the cookie did not return (browser policy or preview transport) was not established. The new opt-in **Create test account without cookies** path is scoped to this synthetic Arena lab and never sends or sets a cookie; keep the tab open. The regular v0.2 preview, HttpOnly-cookie option and login factors are unchanged.
+
+- **39 Python ASGI tests passed**, including three patch scenarios: full no-cookie sign-in, wrong/reused codes, logout and role; origin rejection and transport isolation; challenge expiry and absence of tab routes in loopback.
+- **7 Chromium tests passed in the loopback HTTPS replay** of the preview, including a simulated setup-cookie failure followed by successful enrollment, pairing, password, fresh code, and a workspace that cannot be resumed after reload. This is not a confirmation from the user’s actual hosted browser.
+- **Lab build, 9 Node unit tests, and 9 existing dashboard Chromium tests passed.** The user’s next checkpoint is the **Set up your authenticator** heading after selecting the new button. No secret inputs may be shared.
+
+## Automated results from v0.3
 
 | Check | Result |
 |---|---|
@@ -15,7 +23,7 @@
 
 ## Hosted acceptance
 
-The Live Preview is exposed as **Tickframe sign-in lab**. From within the sandbox, the external proxy requires Arena's traffic access token (also required for the existing v0.2 preview), so unauthenticated requests to the raw proxy address are not an end-to-end test. Local QA exercised the hosted-mode application, HTTPS and embedded-cookie behavior. **Actual Arena user browser checks are pending.** Start with the [first checkpoint](../UserGuide/AccessLab.md#first-check-in-arena); gather only headings or results, not any password, seed, session token, QR image or code.
+The Live Preview is exposed as **Tickframe sign-in lab**. From within the sandbox, the external proxy requires Arena's traffic access token (also required for the existing v0.2 preview), so unauthenticated requests to the raw proxy address are not an end-to-end test. Local QA exercised the hosted-mode application, HTTPS and embedded-cookie behavior. **The first hosted user check hit a cookie error; the v0.3.1 retry is pending.** Follow the [cookie-error instructions](../UserGuide/AccessLab.md#if-something-doesnt-look-right); gather only headings or results, not any password, seed, session token, QR image or code.
 
 ## Reproduce the TLS QA profile (optional developer test)
 

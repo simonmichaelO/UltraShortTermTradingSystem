@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Activity, ArrowRight, Check, ChevronLeft, CircleAlert, Clipboard, Clock3, Eye, EyeOff,
   Fingerprint, KeyRound, LockKeyhole, LogOut, ScanLine, ShieldCheck, Smartphone, WifiOff } from 'lucide-react';
-import { lab, readableLabError } from './auth-api.js';
+import { createTabLab, lab, readableLabError } from './auth-api.js';
 
 const STEPS = [
   { label: 'Create a test account', detail: 'A temporary username and password.', icon: KeyRound },
@@ -43,7 +43,7 @@ function StepList({ stage = 0 }) {
 function Launch() {
   return <main className="lab-layout launch-layout" id="lab-main">
     <div className="launch-copy">
-      <span className="lab-kicker"><span /> WEB PREVIEW / 0.3</span>
+      <span className="lab-kicker"><span /> WEB PREVIEW / 0.3.1</span>
       <h1>Test your<br className="launch-break" /> <span className="launch-title-line">two-step sign-in<span>.</span></span></h1>
       <p>Try a password and an authenticator code before we connect anything to the trading system.</p>
       <a className="lab-button lab-primary launch-button" href="/lab">
@@ -152,7 +152,7 @@ function PasswordForm({ username, onUsername, password, onPassword, onSubmit, ge
   </>;
 }
 
-function Workspace({ data, busy, onSignOut, error }) {
+function Workspace({ data, busy, onSignOut, error, tabOnly }) {
   return <main className="test-workspace" id="lab-main">
     <section className="workspace-intro">
       <div><span className="lab-kicker"><span /> BOTH FACTORS VERIFIED</span><h1>Test workspace<span>.</span></h1>
@@ -162,6 +162,7 @@ function Workspace({ data, busy, onSignOut, error }) {
       </button>
     </section>
     <Notice error={error} />
+    {tabOnly && <TabSessionNote />}
     <div className="workspace-metrics">
       <section><span><ShieldCheck size={17} /> Sign-in</span><strong>Verified</strong><p>Password + authenticator</p></section>
       <section><span><WifiOff size={17} /> MT5 connection</span><strong>Not connected</strong><p>No terminal linked</p></section>
@@ -186,7 +187,15 @@ const COPY = {
   retry: ['SESSION CHECK', 'The lab is unavailable', 'The test workspace stays closed until the service confirms your session.'],
 };
 
+function TabSessionNote() {
+  return <p className="tab-session-note"><LockKeyhole size={14} /> <span><strong>This tab only.</strong> Keep the lab open. If you reload or close it, you’ll need to sign in again.</span></p>;
+}
+
 function AuthFlow() {
+  const tabAvailable = window.location.protocol === 'https:' && /^\d{1,5}-[a-z0-9-]+\.e2b\.app$/.test(window.location.hostname);
+  const [tabLab] = useState(createTabLab);
+  const [transport, setTransport] = useState('cookie');
+  const auth = transport === 'tab' ? tabLab : lab;
   const [screen, setScreen] = useState('checking');
   const [enrollment, setEnrollment] = useState(null);
   const [flashPassword, setFlashPassword] = useState('');
@@ -209,10 +218,10 @@ function AuthFlow() {
     setScreen('workspace');
   }
 
-  async function restore(signal) {
+  async function restore(signal, client = lab) {
     try {
       const timer = AbortSignal.timeout(8000);
-      const next = await lab.workspace(signal ? AbortSignal.any([signal, timer]) : timer);
+      const next = await client.workspace(signal ? AbortSignal.any([signal, timer]) : timer);
       if (!signal?.aborted) showWorkspace(next);
     } catch (problem) {
       if (signal?.aborted) return;
@@ -228,6 +237,22 @@ function AuthFlow() {
   }, []);
 
   useEffect(() => {
+    if (transport !== 'tab') return undefined;
+    const forget = () => tabLab.clear();
+    function clearRestoredPage(event) {
+      if (!event.persisted) return;
+      setData(null);
+      goBack('start', 'cookie');
+    }
+    window.addEventListener('pagehide', forget);
+    window.addEventListener('pageshow', clearRestoredPage);
+    return () => {
+      window.removeEventListener('pagehide', forget);
+      window.removeEventListener('pageshow', clearRestoredPage);
+    };
+  }, [transport, tabLab]);
+
+  useEffect(() => {
     if (['setup', 'password', 'code'].includes(screen)) heading.current?.focus();
     window.scrollTo(0, 0);
   }, [screen]);
@@ -238,7 +263,7 @@ function AuthFlow() {
     let timer;
     async function check() {
       try {
-        const session = await lab.session();
+        const session = await auth.session();
         if (!active) return;
         if (session.username !== data.username || session.role !== 'test_operator') {
           setData(null);
@@ -251,12 +276,13 @@ function AuthFlow() {
         if (!active) return;
         setData(null);
         setError(problem?.code === 'signed_out' ? 'The test session ended. Sign in again to continue.' : readableLabError(problem));
+        if (problem?.code === 'signed_out') tabLab.clear();
         setScreen(problem?.code === 'signed_out' ? 'password' : 'retry');
       }
     }
     timer = setTimeout(check, 15_000);
     return () => { active = false; clearTimeout(timer); };
-  }, [screen, data?.username]);
+  }, [screen, data?.username, auth, tabLab]);
 
   async function run(action, onFailure) {
     if (inFlight.current) return;
@@ -266,30 +292,37 @@ function AuthFlow() {
     setSuccess('');
     try { await action(); } catch (problem) {
       onFailure?.(problem);
-      setError(readableLabError(problem));
+      setError(problem?.code === 'setup_cookie_unavailable' && tabAvailable
+        ? 'This browser did not keep the test setup cookie. Choose Create test account without cookies below.'
+        : readableLabError(problem));
     } finally {
       inFlight.current = false;
       setBusy(false);
     }
   }
-  function goBack(next = 'start') {
+  function goBack(next = 'start', mode = transport) {
+    tabLab.clear();
+    setTransport(mode);
     setCode(''); setPassword(''); setError(''); setSuccess('');
     setEnrollment(null); setFlashPassword(''); setScreen(next);
   }
-  function beginSetup() {
+  function beginSetup(mode) {
     return run(async () => {
-      const created = await lab.enroll();
+      const client = mode === 'tab' ? tabLab : lab;
+      tabLab.clear();
+      const created = await client.enroll();
       if (!created?.username || !created.password || !created.manual_key || !created.qr_image?.startsWith('data:image/png;base64,')) {
         throw new Error('Unexpected enrollment response.');
       }
-      await lab.confirmSetup();
+      await client.confirmSetup();
+      setTransport(mode);
       setEnrollment(created); setCode(''); setScreen('setup');
     });
   }
   function pair(event) {
     event.preventDefault();
     return run(async () => {
-      const result = await lab.pair(code);
+      const result = await auth.pair(code);
       setUsername(result.username); setFlashPassword(enrollment.password);
       setEnrollment(null); setCode(''); setScreen('password');
       setSuccess('Authenticator paired. Now sign in with your test password.');
@@ -302,16 +335,16 @@ function AuthFlow() {
     event.preventDefault();
     return run(async () => {
       const name = username.trim().toLowerCase();
-      await lab.password(name, password);
+      await auth.password(name, password);
       setUsername(name); setPassword(''); setFlashPassword(''); setCode(''); setScreen('code');
     }, () => setPassword(''));
   }
   function verifyCode(event) {
     event.preventDefault();
     return run(async () => {
-      await lab.code(code);
+      await auth.code(code);
       setCode('');
-      try { showWorkspace(await lab.workspace()); } catch (problem) {
+      try { showWorkspace(await auth.workspace()); } catch (problem) {
         setData(null);
         setScreen(problem?.code === 'signed_out' ? 'password' : 'retry');
         setError(readableLabError(problem));
@@ -323,12 +356,12 @@ function AuthFlow() {
   }
   function signOut() {
     return run(async () => {
-      await lab.logout();
+      await auth.logout();
       setData(null); goBack('password'); setSuccess('Signed out. Your test account can still be used until it expires.');
     });
   }
 
-  if (screen === 'workspace' && data) return <Workspace data={data} busy={busy} onSignOut={signOut} error={error} />;
+  if (screen === 'workspace' && data) return <Workspace data={data} busy={busy} onSignOut={signOut} error={error} tabOnly={transport === 'tab'} />;
   const [eyebrow, title, description] = COPY[screen];
   return <main className="lab-layout auth-layout" id="lab-main">
     <aside className="auth-context">
@@ -344,12 +377,18 @@ function AuthFlow() {
       <h1 id="flow-title" ref={heading} tabIndex={-1}>{title}</h1>
       <p className="card-description">{description}</p>
       <Notice error={error} success={success} />
+      {transport === 'tab' && !['checking', 'start'].includes(screen) && <TabSessionNote />}
       {screen === 'checking' && <div className="loading-text" role="status"><span /> Checking session…</div>}
-      {screen === 'retry' && <button className="lab-button lab-primary" type="button" disabled={busy} onClick={() => run(() => restore())}>Retry session check <ArrowRight size={16} /></button>}
+      {screen === 'retry' && <button className="lab-button lab-primary" type="button" disabled={busy} onClick={() => run(() => restore(undefined, auth))}>Retry session check <ArrowRight size={16} /></button>}
       {screen === 'start' && <div className="start-actions">
-        <button className="lab-button lab-primary" type="button" disabled={busy} onClick={beginSetup}>{busy ? 'Creating account…' : 'Create test account'} <ArrowRight size={17} /></button>
-        <button className="lab-button lab-secondary" type="button" disabled={busy} onClick={() => goBack('password')}>I have test credentials</button>
+        <button className="lab-button lab-primary" type="button" disabled={busy} onClick={() => beginSetup('cookie')}>{busy ? 'Creating account…' : 'Create test account'} <ArrowRight size={17} /></button>
+        <button className="lab-button lab-secondary" type="button" disabled={busy} onClick={() => goBack('password', 'cookie')}>I have test credentials</button>
       </div>}
+      {screen === 'start' && tabAvailable && <section className="tab-only-option" aria-label="Continue without cookies">
+        <p><strong>Preview cookies blocked?</strong> Keep your test sign-in in this tab only.</p>
+        <button className="lab-button lab-secondary" type="button" disabled={busy} onClick={() => beginSetup('tab')}>Create test account without cookies</button>
+        <button className="lab-text-button" type="button" disabled={busy} onClick={() => goBack('password', 'tab')}>Sign in without cookies</button>
+      </section>}
       {screen === 'setup' && <SetupForm enrollment={enrollment} busy={busy} code={code} onCode={setCode} onPair={pair} onBack={() => goBack()} />}
       {screen === 'password' && <PasswordForm username={username} onUsername={setUsername} password={password} onPassword={setPassword}
         onSubmit={verifyPassword} generated={flashPassword} busy={busy} onBack={() => goBack()} />}

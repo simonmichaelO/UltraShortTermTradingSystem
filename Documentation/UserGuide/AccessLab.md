@@ -16,7 +16,7 @@ Open the **Tickframe sign-in lab** Live Preview. Choose **Open sign-in lab**, th
 
 ## If something doesn’t look right
 
-- **Setup cookie warning:** the browser did not keep the test cookie. Use Arena's Open in new tab control if available, or try a current browser that supports partitioned cookies. Then create a new account in that same view. Don’t copy a session from an embedded preview into a tab; the two browser contexts are isolated.
+- **Setup cookie warning in Arena:** refresh the **Tickframe sign-in lab** preview and click **Create test account without cookies**. If the welcome screen appears, click **Open sign-in lab** first. Look for **Set up your authenticator**. You don’t need to change browser settings. Keep that preview open: refreshing or closing it loses the tab-only setup or sign-in. If you already paired a test account and privately saved its credentials, **Sign in without cookies** uses that account with both factors.
 - **Code rejected:** wait for a fresh code, check the right entry and ensure your device’s date and time are automatic. After repeated failures, wait as instructed; if setup or the sign-in challenge expired, start that step again.
 - **Test account stopped working:** account expiry/restart is intentional. Create a new temporary identity in the lab. Do not type a broker or personal password as a workaround.
 - **You see the charts and Overview instead:** that's the regular Tickframe preview. Switch to the separate **Tickframe sign-in lab** Live Preview.

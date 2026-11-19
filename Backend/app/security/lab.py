@@ -7,6 +7,7 @@ service. An ASGI worker restart deliberately discards every identity and token.
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from enum import StrEnum
 from hashlib import sha256
 from hmac import compare_digest
 from math import ceil
@@ -40,10 +41,15 @@ class LabError(Exception):
         self.retry_after = retry_after
 
 
-def _token_id(token: str | None) -> bytes | None:
+class TokenChannel(StrEnum):
+    COOKIE = "cookie"
+    TAB = "tab"
+
+
+def _token_id(token: str | None, channel: TokenChannel = TokenChannel.COOKIE) -> bytes | None:
     if token is None or len(token) != 43 or not token.isascii():
         return None
-    return sha256(token.encode("ascii")).digest()
+    return sha256(f"{channel.value}:{token}".encode("ascii")).digest()
 
 
 @dataclass(slots=True)
@@ -153,12 +159,12 @@ class LabState:
                 return True
         return False
 
-    def enroll(self, previous_setup: str | None) -> NewSetup:
+    def enroll(self, previous_setup: str | None, *, channel: TokenChannel = TokenChannel.COOKIE) -> NewSetup:
         with self._lock:
             now = self._clock()
             self._prune(now)
             self._limit(now, "enroll", 8)
-            self._setups.pop(_token_id(previous_setup), None)
+            self._setups.pop(_token_id(previous_setup, channel), None)
             if len(self._accounts) + len(self._setups) >= MAX_ACCOUNTS:
                 raise LabError("lab_full", 503)
         password = token_urlsafe(18)
@@ -173,7 +179,7 @@ class LabState:
             username = f"lab-{token_hex(8)}"
             while username in self._accounts or any(x.account.username == username for x in self._setups.values()):
                 username = f"lab-{token_hex(8)}"
-            self._setups[_token_id(token)] = Setup(
+            self._setups[_token_id(token, channel)] = Setup(
                 Account(username, digest, otp_secret, now + SETUP_TTL + ACCOUNT_TTL), now + SETUP_TTL,
             )
         return NewSetup(username, password, otp_secret, token)
@@ -184,11 +190,11 @@ class LabState:
             if _token_id(token) not in self._setups:
                 raise LabError("setup_cookie_unavailable", 401)
 
-    def pair(self, token: str | None, code: str) -> str:
+    def pair(self, token: str | None, code: str, *, channel: TokenChannel = TokenChannel.COOKIE) -> str:
         with self._lock:
             now = self._clock()
             self._prune(now)
-            key = _token_id(token)
+            key = _token_id(token, channel)
             pending = self._setups.get(key)
             if pending is None:
                 raise LabError("setup_expired", 401)
@@ -206,7 +212,7 @@ class LabState:
             self._accounts[account.username] = account
             return account.username
 
-    def password_step(self, username: str, password: str) -> str:
+    def password_step(self, username: str, password: str, *, channel: TokenChannel = TokenChannel.COOKIE) -> str:
         with self._lock:
             now = self._clock()
             self._prune(now)
@@ -231,14 +237,14 @@ class LabState:
                 if previous.username == username:
                     del self._challenges[key]
             token = token_urlsafe(32)
-            self._challenges[_token_id(token)] = Challenge(username, min(now + CHALLENGE_TTL, account.expires))
+            self._challenges[_token_id(token, channel)] = Challenge(username, min(now + CHALLENGE_TTL, account.expires))
             return token
 
-    def code_step(self, token: str | None, code: str) -> str:
+    def code_step(self, token: str | None, code: str, *, channel: TokenChannel = TokenChannel.COOKIE) -> str:
         with self._lock:
             now = self._clock()
             self._prune(now)
-            key = _token_id(token)
+            key = _token_id(token, channel)
             challenge = self._challenges.get(key)
             if challenge is None:
                 raise LabError("challenge_expired", 401)
@@ -259,17 +265,19 @@ class LabState:
                 if session.username == account.username:
                     del self._sessions[existing]
             token = token_urlsafe(32)
-            self._sessions[_token_id(token)] = Session(
+            self._sessions[_token_id(token, channel)] = Session(
                 account.username, min(now + SESSION_TTL, account.expires), now + SESSION_IDLE_TTL,
             )
             self._log(account, "sign_in_succeeded")
             return token
 
-    def session(self, token: str | None, *, workspace: bool = False) -> dict:
+    def session(
+        self, token: str | None, *, workspace: bool = False, channel: TokenChannel = TokenChannel.COOKIE,
+    ) -> dict:
         with self._lock:
             now = self._clock()
             self._prune(now)
-            session = self._sessions.get(_token_id(token))
+            session = self._sessions.get(_token_id(token, channel))
             if session is None:
                 raise LabError("signed_out", 401)
             account = self._accounts[session.username]
@@ -288,11 +296,14 @@ class LabState:
                 })
             return payload
 
-    def logout(self, session_token: str | None, challenge_token: str | None, setup_token: str | None) -> None:
+    def logout(
+        self, session_token: str | None, challenge_token: str | None, setup_token: str | None,
+        *, channel: TokenChannel = TokenChannel.COOKIE,
+    ) -> None:
         with self._lock:
             self._prune(self._clock())
-            session = self._sessions.pop(_token_id(session_token), None)
+            session = self._sessions.pop(_token_id(session_token, channel), None)
             if session:
                 self._log(self._accounts[session.username], "signed_out")
-            self._challenges.pop(_token_id(challenge_token), None)
-            self._setups.pop(_token_id(setup_token), None)
+            self._challenges.pop(_token_id(challenge_token, channel), None)
+            self._setups.pop(_token_id(setup_token, channel), None)

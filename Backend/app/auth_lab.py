@@ -21,7 +21,7 @@ CSP = (
 def create_lab_app(*, mode: LabMode, frontend_dir: Path | None = None, state: LabState | None = None) -> FastAPI:
     if not isinstance(mode, LabMode):
         raise ValueError("Choose an explicit sign-in lab mode.")
-    app = FastAPI(title="Tickframe Access Lab", version="0.3.0", docs_url=None, redoc_url=None,
+    app = FastAPI(title="Tickframe Access Lab", version="0.3.1", docs_url=None, redoc_url=None,
                   openapi_url=None, redirect_slashes=False)
     app.include_router(create_router(state if state is not None else LabState(), mode))
 

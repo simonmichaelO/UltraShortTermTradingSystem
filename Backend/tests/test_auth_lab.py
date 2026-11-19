@@ -332,3 +332,81 @@ async def test_lab_must_be_started_with_an_explicit_mode(monkeypatch):
     monkeypatch.delenv("TICKFRAME_LAB_MODE", raising=False)
     with pytest.raises(RuntimeError, match="Set TICKFRAME_LAB_MODE"):
         from_environment()
+
+
+async def test_tab_only_flow_needs_both_factors_without_a_cookie(clock):
+    hosted = create_lab_app(mode=LabMode.ARENA, state=LabState(clock=lambda: clock.elapsed, utc_clock=lambda: clock.utc))
+    origin = "https://5174-test-sandbox.e2b.app"
+    tab = API + "/tab"
+    async with connected(hosted, origin=origin) as browser:
+        async def post(step, data):
+            reply = await browser.post(tab + step, json=data)
+            assert "set-cookie" not in reply.headers
+            assert reply.headers["cache-control"] == "no-store"
+            assert len(browser.cookies) == 0
+            return reply
+
+        setup = (await post("/enroll", {})).json()
+        issued = setup["handle"]
+        cycle = code_at(setup, clock)
+        credentials = {"username": setup["username"], "password": setup["password"]}
+        assert (await post("/password", credentials)).status_code == 401
+        assert (await post("/workspace", {"handle": issued})).status_code == 401
+        assert (await post("/totp", {"handle": issued, "code": cycle})).status_code == 401
+        assert (await post("/pair", {"handle": issued, "code": cycle})).json() == {
+            "next": "password", "username": setup["username"],
+        }
+        assert (await post("/pair", {"handle": issued, "code": cycle})).status_code == 401
+        wrong = await post("/password", {**credentials, "password": token_urlsafe(18)})
+        assert wrong.json() == {"error": "invalid_credentials"}
+        challenge = (await post("/password", credentials)).json()["handle"]
+        assert challenge != issued
+        assert (await post("/workspace", {"handle": challenge})).status_code == 401
+        assert (await post("/totp", {"handle": challenge, "code": cycle})).json() == {"error": "invalid_code"}
+        clock.tick(30)
+        fresh = code_at(setup, clock)
+        session = (await post("/totp", {"handle": challenge, "code": fresh})).json()["handle"]
+        assert session != challenge
+        assert (await post("/totp", {"handle": challenge, "code": fresh})).status_code == 401
+        assert (await browser.get(WORKSPACE)).status_code == 401
+        assert (await post("/session", {"handle": session})).json()["username"] == setup["username"]
+        workspace = (await post("/workspace", {"handle": session})).json()
+        assert workspace["live_entries"] == "locked" and workspace["mt5_connection"] == "not_configured"
+        assert workspace["role"] == "test_operator" and "handle" not in workspace
+        assert [event["event"] for event in workspace["login_history"]][:1] == ["sign_in_succeeded"]
+        assert (await post("/logout", {"handle": session})).status_code == 204
+        assert (await post("/workspace", {"handle": session})).status_code == 401
+
+
+async def test_tab_route_does_not_accept_cookie_handles_or_cross_origin_setup(clock):
+    hosted = create_lab_app(mode=LabMode.ARENA, state=LabState(clock=lambda: clock.elapsed, utc_clock=lambda: clock.utc))
+    origin = "https://5174-test-sandbox.e2b.app"
+    tab = API + "/tab"
+    async with connected(hosted, origin=origin) as browser:
+        denied = await browser.post(tab + "/enroll", json={}, headers={"Origin": "https://other.example"})
+        assert denied.status_code == 403 and not denied.headers.get("set-cookie")
+        cookie_setup = (await browser.post(API + "/enroll", json={})).json()
+        cookie_handle = browser.cookies.get("__Host-tf-lab-setup")
+        assert cookie_handle and (await browser.post(tab + "/pair", json={
+            "handle": cookie_handle, "code": code_at(cookie_setup, clock),
+        })).json() == {"error": "setup_expired"}
+        browser.cookies.clear()
+        tab_setup = (await browser.post(tab + "/enroll", json={})).json()
+        cookie_attempt = await browser.post(API + "/pair", json={"code": code_at(tab_setup, clock)},
+                                           headers={"Cookie": f"__Host-tf-lab-setup={tab_setup['handle']}"})
+        assert cookie_attempt.json() == {"error": "setup_expired"}
+        assert (await browser.get(tab + "/workspace", params={"handle": token_urlsafe(32)})).status_code == 405
+
+
+async def test_tab_challenge_still_expires(client, clock):
+    hosted = create_lab_app(mode=LabMode.ARENA, state=LabState(clock=lambda: clock.elapsed, utc_clock=lambda: clock.utc))
+    tab = API + "/tab"
+    assert (await client.post(tab + "/enroll", json={})).status_code == 404
+    async with connected(hosted, origin="https://5174-test-sandbox.e2b.app") as browser:
+        setup = (await browser.post(tab + "/enroll", json={})).json()
+        assert (await browser.post(tab + "/pair", json={"handle": setup["handle"], "code": code_at(setup, clock)})).is_success
+        credentials = {"username": setup["username"], "password": setup["password"]}
+        challenge = (await browser.post(tab + "/password", json=credentials)).json()["handle"]
+        clock.tick(CHALLENGE_TTL)
+        result = await browser.post(tab + "/totp", json={"handle": challenge, "code": code_at(setup, clock)})
+        assert result.json() == {"error": "challenge_expired"}

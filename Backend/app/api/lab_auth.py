@@ -13,7 +13,9 @@ from fastapi import APIRouter, Request, Response
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
 
-from app.security.lab import CHALLENGE_TTL, ISSUER, SESSION_TTL, SETUP_TTL, LabError, LabState, NewSetup
+from app.security.lab import (
+    CHALLENGE_TTL, ISSUER, SESSION_TTL, SETUP_TTL, LabError, LabState, NewSetup, TokenChannel,
+)
 
 MAX_BODY = 4096
 T = TypeVar("T", bound=BaseModel)
@@ -35,6 +37,14 @@ class PasswordInput(EmptyInput):
 
 class CodeInput(EmptyInput):
     code: str = Field(pattern=r"^[0-9]{6}$", min_length=6, max_length=6)
+
+
+class TabInput(EmptyInput):
+    handle: str = Field(pattern=r"^[A-Za-z0-9_-]{43}$", min_length=43, max_length=43)
+
+
+class TabCodeInput(TabInput, CodeInput):
+    pass
 
 
 async def _read_input(request: Request, model: type[T]) -> T:
@@ -84,6 +94,70 @@ def _qr(setup: NewSetup) -> str:
     return "data:image/png;base64," + base64.b64encode(output.getvalue()).decode("ascii")
 
 
+def _setup_payload(setup: NewSetup) -> dict:
+    return {
+        "username": setup.username, "password": setup.password, "manual_key": setup.otp_secret,
+        "qr_image": _qr(setup), "setup_minutes": SETUP_TTL // 60,
+    }
+
+
+def _tab_router(state: LabState) -> APIRouter:
+    """Opt-in for the synthetic Arena lab; no cookies or URL tokens.
+
+    Each handle is a separate, expiring server-side proof, usable only for
+    its stage and this transport. JSON-only, same-origin POST covers probes
+    too, so a handle never appears in the URL or a referrer.
+    """
+    tab = APIRouter(prefix="/auth/tab")
+    channel = TokenChannel.TAB
+
+    async def input_for_tab(request: Request, model: type[T]) -> T:
+        _guard(request, LabMode.ARENA, modifying=True)
+        return await _read_input(request, model)
+
+    @tab.post("/enroll", status_code=201)
+    async def enroll_in_tab(request: Request):
+        await input_for_tab(request, EmptyInput)
+        setup = await run_in_threadpool(state.enroll, None, channel=channel)
+        return {**_setup_payload(setup), "handle": setup.token}
+
+    @tab.post("/pair")
+    async def pair_in_tab(request: Request):
+        data = await input_for_tab(request, TabCodeInput)
+        username = state.pair(data.handle, data.code, channel=channel)
+        return {"next": "password", "username": username}
+
+    @tab.post("/password")
+    async def password_in_tab(request: Request):
+        data = await input_for_tab(request, PasswordInput)
+        token = await run_in_threadpool(state.password_step, data.username, data.password, channel=channel)
+        return {"next": "totp", "handle": token}
+
+    @tab.post("/totp")
+    async def totp_in_tab(request: Request):
+        data = await input_for_tab(request, TabCodeInput)
+        token = state.code_step(data.handle, data.code, channel=channel)
+        return {"next": "workspace", "handle": token}
+
+    @tab.post("/session")
+    async def session_in_tab(request: Request):
+        data = await input_for_tab(request, TabInput)
+        return state.session(data.handle, channel=channel)
+
+    @tab.post("/workspace")
+    async def workspace_in_tab(request: Request):
+        data = await input_for_tab(request, TabInput)
+        return state.session(data.handle, channel=channel, workspace=True)
+
+    @tab.post("/logout", status_code=204)
+    async def logout_in_tab(request: Request):
+        data = await input_for_tab(request, TabInput)
+        state.logout(data.handle, data.handle, data.handle, channel=channel)
+        return Response(status_code=204)
+
+    return tab
+
+
 def create_router(state: LabState, mode: LabMode) -> APIRouter:
     router = APIRouter(prefix="/api/v1")
     secure = mode == LabMode.ARENA
@@ -107,8 +181,7 @@ def create_router(state: LabState, mode: LabMode) -> APIRouter:
         await _read_input(request, EmptyInput)
         setup = await run_in_threadpool(state.enroll, request.cookies.get(setup_cookie))
         write_cookie(response, setup_cookie, setup.token, SETUP_TTL)
-        return {"username": setup.username, "password": setup.password, "manual_key": setup.otp_secret,
-                "qr_image": _qr(setup), "setup_minutes": SETUP_TTL // 60}
+        return _setup_payload(setup)
 
     @router.get("/auth/setup", status_code=204)
     async def confirm_setup(request: Request):
@@ -161,4 +234,6 @@ def create_router(state: LabState, mode: LabMode) -> APIRouter:
         _guard(request, mode)
         return state.session(request.cookies.get(session_cookie), workspace=True)
 
+    if secure:
+        router.include_router(_tab_router(state))
     return router
