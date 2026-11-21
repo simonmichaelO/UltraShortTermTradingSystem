@@ -18,14 +18,14 @@ function Brand() {
   </a>;
 }
 
-export function Sidebar({ page, mobileOpen, onClose }) {
+export function Sidebar({ items = NAV_ITEMS, page, mobileOpen, onClose }) {
   return <>
     {mobileOpen && <button className="mobile-backdrop" onClick={onClose} aria-label="Close navigation" type="button" />}
     <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`} id="navigation" aria-label="Sidebar">
       <div className="brand-row"><Brand /><button type="button" aria-label="Close menu" className="icon-button close-menu" onClick={onClose}><X size={19} /></button></div>
       <nav className="nav-main" aria-label="Trading workspace">
         <span className="nav-eyebrow">WORKSPACE</span>
-        {NAV_ITEMS.slice(0, 5).map(({ id, name, icon: Icon }) => <a className="nav-link" aria-current={id === page ? 'page' : undefined}
+        {items.filter(item => item.id !== 'settings').map(({ id, name, icon: Icon }) => <a className="nav-link" aria-current={id === page ? 'page' : undefined}
           href={`#${id}`} aria-label={name} title={name} key={id} onClick={onClose}><Icon size={17} strokeWidth={1.8} /> <span>{name}</span></a>)}
         <span className="nav-eyebrow nav-system">SYSTEM</span>
         <a className="nav-link" aria-current={page === 'settings' ? 'page' : undefined} href="#settings" aria-label="Settings" title="Settings" onClick={onClose}>
@@ -46,8 +46,8 @@ export function Sidebar({ page, mobileOpen, onClose }) {
   </>;
 }
 
-export function Topbar({ page, mobileOpen, onMenu, onAlerts, onStop, alertCount, emergency }) {
-  const title = NAV_ITEMS.find(item => item.id === page)?.name ?? 'Overview';
+export function Topbar({ items = NAV_ITEMS, page, mobileOpen, onMenu, onAlerts, onStop, alertCount, emergency }) {
+  const title = items.find(item => item.id === page)?.name ?? 'Overview';
   return <header className="topbar">
     <div className="topbar-trail">
       <button type="button" className="icon-button menu-button" onClick={onMenu} aria-label="Open navigation" aria-expanded={mobileOpen} aria-controls="navigation"><Menu size={20} /></button>

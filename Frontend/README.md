@@ -1,5 +1,7 @@
 # Tickframe sample dashboard · v0.4
 
+**Local Workspace v0.7:** `npm.cmd run build:local` writes `LocalWorkspace/dist` and adds **Sample History** to the same dashboard without replacing `dist`, `SampleHistory/dist` or `AuthLab/dist`. Use the [Windows run card](../Documentation/Installation/LocalWorkspaceWindows.md) to run it against the existing local sample database. This guide below still applies to the standalone dashboard.
+
 The regular dashboard shows **simulated data only**. Overview account metrics, both positions views and position details, and Analytics’ Account snapshot read from the [sample API](../Backend/README.md#sample-snapshot-contract-v1). The chart, watchlist, trade history, per-instrument statistics and shadow decisions remain prewritten examples. The separate [Access Lab](../Documentation/UserGuide/AccessLab.md) does not authenticate the regular dashboard and is unchanged. The [Sample History preview](../Documentation/Testing/SampleHistoryChecks.md) builds independently with `npm run build:history` and does not replace the v0.4 dashboard.
 
 ## Try the sample feed in Arena

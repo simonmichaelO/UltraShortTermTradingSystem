@@ -3,12 +3,12 @@
 | Field | Current value |
 |---|---|
 | Date | 17 November 2026 |
-| Stage | Early web build: Sample History v0.6 implemented and checked; operator confirmed hosted snapshot selection. SQLite lab v0.5 passed restart and restore; v0.4 hosted walkthrough complete. Operator confirmed v0.2 Web API status and v0.3.2 Access Lab sign-in and sign-out. Stage 1 Windows/broker evidence is pending. |
+| Stage | Early web build: Local Workspace v0.7 passed sandbox loopback checks; Windows acceptance pending. Operator confirmed v0.6 Sample History selection in Arena and persistence across a Windows restart. Stage 1 broker evidence and Stage 6 gates remain open. |
 | Starter version | `stage1-v0.1` (documentation and non-executable scaffold) |
-| EA, API and dashboard versions | EA: not started. Regular dashboard `web-sample-v0.4`; separate `web-auth-lab-v0.3.2`, offline storage `web-storage-lab-v0.5`, and Sample History `web-sample-history-v0.6`. All use synthetic data only. |
-| Source control | Local Git on `main` with Stage 1 and versioned web preview, status, Access Lab, sample API, offline SQLite, and Sample History milestones. Operator reported the private GitHub repository is ready; no destination URL has been verified or linked, and nothing has been pushed. |
+| EA, API and dashboard versions | EA: not started. Opt-in `web-local-workspace-v0.7`; separate dashboard `web-sample-v0.4`, `web-auth-lab-v0.3.2`, offline storage `web-storage-lab-v0.5`, and Sample History `web-sample-history-v0.6`. All use synthetic data only. |
+| Source control | Operator reported the private GitHub source backup restored `d55f065` and nine tags into a clean Windows clone. Workspace `main` now has v0.7; a verified bundle is the Windows handoff. The v0.7 update has not been pushed. No workspace remote. |
 | Requirements | [Master specification](../MasterSpecification.md), preserved separately from provisional design choices |
-| Current practical task | The operator confirmed the **Private** repository. Next: extract the verified v0.6 source ZIP and locate its Git bundle on the computer they will push from. No hosting purchase or broker setup. |
+| Current practical task | Use the [Windows run card](../Installation/LocalWorkspaceWindows.md) in the existing `Tickframe` clone. Check both saved rows without reseeding, then update the existing private source backup. No hosting purchase or broker setup. |
 
 ## Decisions and scope
 
@@ -30,12 +30,17 @@
 | D-014 | Approved, verified locally | Save only bundled synthetic samples in a separate versioned SQLite store. Verify original values after a process restart and after restore. Keep lab copies out of Git and the hosted previews; no storage endpoint, credentials or broker connection. |
 | D-015 | Approved, implemented | Show saved examples in a separate read-only Sample History service. Serve only a dedicated SQLite copy matched to the bundled synthetic examples; no fixture fallback, database downloads, writers, or production identities. |
 | D-016 | User reaffirmed | Keep a private GitHub copy of clean source and release history. Test at lowest cost: current Arena preview for browser feedback, existing PC for durable SQLite testing, free disposable remote demo only if needed. Do not buy hosting or expose private data. |
+| D-017 | Approved, sandbox verified | Offer one opt-in localhost workspace with separate **Sample History** and **Trade history**. Reuse the two already saved examples, no seed or write route. Preserve the standalone builds and keep MT5 disconnected. |
+
+## Local Workspace · v0.7
+
+The [workspace checks](../Testing/LocalWorkspaceChecks.md) verified same-origin read-only navigation and both saved examples across a loopback restart, without changing the SQLite digest. Overview's delivery status and Sample History's **Available / Empty / Unavailable** states are independent. The simulated closed-trade ledger and existing previews were kept separate. **Main files:** `Backend/app/local_workspace.py`, `Backend/tests/test_local_workspace.py`, `Frontend/LocalWorkspace/` and `Frontend/playwright.local.config.js`. No changes to broker gates or operational controls.
 
 ## Sample History · v0.6
 
 The [independent history preview](../Testing/SampleHistoryChecks.md) shows both saved records, newest first, from a dedicated verified copy of the v0.5 restored database. Selection is local and the only API action is a GET. Missing or unapproved data produce **Unavailable**, distinct from a verified empty store. The v0.4 dashboard and v0.3.2 Access Lab are unchanged. Automated tests passed. The operator confirmed the older example displayed **Equity $2,486.72**, completing the hosted selection check.
 
-The user reaffirmed private GitHub backup and inexpensive test hosting. See the [separate plan](../Installation/HostingAndGitHub.md) for the recommended local-first test, source bundle handoff and optional disposable remote demo. The operator reported the private repository is ready. No workspace remote has been configured, and no paid hosting is in use.
+The operator reported a verified private source restore and a successful Windows loopback restart with both snapshots, no second seed. See the [hosting and backup plan](../Installation/HostingAndGitHub.md) for the separate source and runtime recovery scopes. No paid hosting is in use.
 
 ## SQLite sample storage lab · v0.5
 
@@ -121,6 +126,6 @@ The setup guide leads into the checklist. The checklist obtains the account evid
 
 ## Next and independent review
 
-The operator confirmed v0.2 web status and v0.3.2 Access Lab sign-in and sign-out. The approved read-only sample API is implemented; the operator confirmed the v0.4 delay, outage and recovery walkthrough. The approved SQLite exercise is complete. The separate read-only Sample History view was approved and verified in the workspace. The operator confirmed the hosted selection. The operator reported the repository shows **Private**. Next: prepare the verified bundle on the operator’s computer; verify the exact destination and empty state locally before pushing. No source has been pushed and no hosting was purchased. Stage 6 remains open: secure operational identity/config storage, recovery, permissions and independent deployment review require later work. No broker data or engine command path is enabled. Stage 1 can resume separately with Standard demo setup, symbol/account/clock/calendar inventory, permission checks and Windows Git.
+The next operator check is v0.7 on the existing Windows clone, with both rows and original save times still visible after a restart. Keep the private source backup separate from the data. Stage 6 remains open: secure operational identity/config storage, recovery, permissions and independent deployment review require later work. No broker data or engine command path is enabled. Stage 1 can resume separately with Standard demo setup, symbol/account/clock/calendar inventory and permission checks.
 
 Retain `UltraShortTermTradingSystem-WebSampleHistory-0.6.zip` and the prior clean archives and Git tags. For independent review, share the tracked `Frontend/` and `Backend/` files (including dependency manifests, tests, assets and READMEs) plus `Documentation/` and root repository files, or the portable Git bundle. Ignore `dist/`, `.venv/`, `node_modules/`, and generated test output. No native trading source exists yet. Do not share credentials, personal or broker data, private support correspondence, or runtime database contents. The archive is not evidence of an independent review.

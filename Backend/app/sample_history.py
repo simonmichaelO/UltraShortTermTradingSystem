@@ -60,7 +60,10 @@ def _load_catalog() -> dict[str, SampleFixture]:
     return catalog
 
 
-def create_history_app(db_path: Path, frontend_dir: Path | None = None) -> FastAPI:
+def create_history_app(
+    db_path: Path, frontend_dir: Path | None = None, *,
+    build_hint: str = "Build the Sample History frontend first.",
+) -> FastAPI:
     app = FastAPI(title="Tickframe Sample History", version="0.6.0", docs_url=None, redoc_url=None,
                   openapi_url=None, redirect_slashes=False)
     catalog = _load_catalog()
@@ -92,7 +95,7 @@ def create_history_app(db_path: Path, frontend_dir: Path | None = None) -> FastA
         def shell() -> FileResponse:
             index = dist / "index.html"
             if index.is_symlink() or not index.is_file():
-                raise HTTPException(503, "Build the Sample History frontend first.", headers=HEADERS)
+                raise HTTPException(503, build_hint, headers=HEADERS)
             return FileResponse(index, media_type="text/html", headers=HEADERS)
 
         @app.get("/assets/{asset}", include_in_schema=False)

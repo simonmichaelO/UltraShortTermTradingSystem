@@ -1,28 +1,32 @@
 # Private GitHub backup and low-cost testing
 
-## Recommendation
-
-**Use a private GitHub Free repository for source, keep using the Arena preview for browser feedback, and run persistent SQLite tests on the PC you already have.** Do not buy hosting for this stage. The repository is for code and Git history, not the running app or its database. No GitHub repository has been created or pushed from this workspace, and no new hosting service has been purchased or deployed.
+**Keep the private GitHub repository for versioned source, Arena for standalone browser feedback, and the existing PC for persistent SQLite tests.** Do not buy hosting for this stage. A Git push does not copy runtime data or deploy a web service.
 
 | Option | Best use | Cost and limits |
 |---|---|---|
-| **Current Arena preview** | Click through the simulated UI now, without installing anything. | No new hosting account needed for this check. Treat the sandbox as temporary, not as an always-on service or an off-machine database backup. |
-| **Local PC, loopback only — recommended** | Test saved history, SQLite persistence, restart, and backup restore. | No cloud-hosting fee if using the PC you already have; normal device/power costs still apply. It is reachable only from that PC and only while the test app runs. No router changes, port forwarding, or public tunnel. |
-| **Render Free, if a public test URL is needed** | A disposable demo seeded from approved synthetic fixtures. Not set up yet. | Free within the plan’s limits. It can sleep after 15 minutes idle, has a cold start, and loses changes to local files, including SQLite, on restart, redeploy, or spin-down. Free web services cannot attach a persistent disk. If no payment method is added, quota exhaustion can suspend services or pause builds rather than incur charges. Check the current terms before opting in. [1](https://render.com/docs/free) [2](https://render.com/docs/faq) |
+| **Existing Arena previews** | Review the simulated dashboard, Access Lab, or standalone Sample History without a local install. | No new hosting account needed. Treat the sandbox as temporary, not an always-on service or an off-machine data backup. |
+| **Local PC, loopback only — recommended** | Use [one Tickframe workspace](LocalWorkspaceWindows.md) with saved Sample History. Test persistence, restart and backup restore on the machine that already holds the SQLite file. | No cloud-hosting fee with the existing PC; normal device/power costs still apply. The app is reachable only on that PC while it is running. No port forwarding or public tunnel. |
+| **Render Free, only if a disposable public demo becomes necessary** | A reproducible demo containing only approved synthetic fixtures. Not provisioned. The loopback workspace is not for this deployment. | Free within plan limits. A free service can spin down after 15 idle minutes and loses local SQLite changes on restart, redeploy or spin-down; it cannot attach a persistent disk. Without a payment method, quota exhaustion can suspend services or pause builds. Review current terms before choosing. [1](https://render.com/docs/free) [2](https://render.com/docs/faq) |
 
-A private source repository does **not** make a deployed website private. Never publish broker records, real credentials, SQLite backups, the Access Lab’s identities, or trading controls to a public demo. A disposable demo may explicitly rebuild a copy from the two checked-in synthetic samples. If durable remote storage, a private site, or an always-on service becomes necessary, review requirements and total cost first. A web-service preview does not provide a Windows/MT5 terminal.
+A private source repository does **not** make a deployed website private. Never publish broker records, passwords, SQLite backups, Access Lab identities or trading controls. GitHub Free supports private repositories. [1](https://docs.github.com/en/get-started/learning-about-github/githubs-plans) GitHub Pages serves static sites, not FastAPI with SQLite; do not make the repo public to try it. [2](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site) A hosted web service is not a Windows/MT5 terminal.
 
-## Back up the source to GitHub when ready
+## Verified source checkpoint
 
-GitHub Free supports private repositories. [1](https://docs.github.com/en/get-started/learning-about-github/githubs-plans) GitHub Pages is a static site service and cannot run this Python API and SQLite; do not make the source repository public to try it. [2](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site)
+The operator reported the repository is **Private**, pushed `main` and nine release tags from Windows, and restored `d55f065` and the nine tags into a clean `$HOME\Tickframe-restore` clone. This verified the v0.6 **source** backup. The v0.6 SQLite test separately passed on the working PC. No remote is configured in this workspace; no new hosting has been deployed or purchased.
 
-1. Keep the current **WebSampleHistory 0.6** ZIP as a second source copy. It includes clean tracked files and a verified Git bundle with `main` and the release tags. It excludes `.venv`, `node_modules`, builds, `LocalData`, SQLite databases, credentials and backups.
-2. When ready, sign in to GitHub **in your own browser**. Enable two-factor authentication. Create an empty **Private** repository named `UltraShortTermTradingSystem`; do not initialize it with a README, license or `.gitignore`. Confirm it is labelled **Private**. There is no need for a paid plan for this source backup. [1](https://docs.github.com/en/get-started/learning-about-github/githubs-plans)
-3. Clone the included `UltraShortTermTradingSystem-web-sample-history.bundle` into a **new** working folder. The [Windows Git guide](WindowsSetup.md#git-and-the-starter-package--after-the-demo-check) explains how to clone and sign in from a local Git client; use this release’s bundle instead of the Stage 1 one. Confirm the tree is clean and the broker, database and secret paths are ignored before pushing. Change that clone’s `origin` to the exact HTTPS URL copied from your private repo. Verify the destination with `git remote -v` before running `git push -u origin main` and then `git push origin --tags`.
-4. Verify the repo’s private label, `main` commit, and tags in the browser. Later, clone the private remote into a new folder once to prove that it restores the source. Keep the ZIP and separate tested database backups; a Git push does not copy runtime SQLite.
+Keep the v0.6 ZIP as a recovery copy. The new **WebLocalWorkspace 0.7** ZIP and its Git bundle include clean tracked source and the milestone history, including `web-local-workspace-v0.7`. The v0.7 release is prepared locally; its Windows check and GitHub backup are pending. The packages exclude `.venv`, `node_modules`, generated builds, `LocalData`, SQLite files, credentials and backups.
 
-The connector is unavailable in this session; the GitHub action must happen through a signed-in browser and a local Git client. Never paste a password, token, recovery code, or a URL containing a token into chat. The hosted preview check is complete and the operator reported the GitHub repository shows **Private**. No push has been performed. Next: extract the source ZIP and locate the `.bundle` file. Verify the exact remote destination and that it is empty before pushing anything.
+## Update the existing private source backup after the local check
 
-## Local follow-up
+1. Complete the [v0.7 Windows check](LocalWorkspaceWindows.md) in `$HOME\Tickframe`. Keep `LocalData` and database backups out of Git; do not create another repo or copy the database into the clone's tracked paths.
+2. On the Windows PC, verify the repository still shows **Private** in your own browser and your local working copy is clean at `web-local-workspace-v0.7`. Check `git remote -v` locally against that exact private URL. Never paste an authentication URL, token, recovery code or password into chat.
+3. From `$HOME\Tickframe`, push only after verifying the destination. Use normal, not forced, updates:
 
-The [Sample History test report](../Testing/SampleHistoryChecks.md#optional-local-run) shows the local build and loopback command. Python uses its built-in SQLite library; a separate database server is not required. Running locally is a test option, not permission to connect a broker or advance Stage 1 or Stage 6.
+   ```powershell
+   git push origin main
+   git push origin web-local-workspace-v0.7
+   ```
+
+4. Confirm the new `main` and `web-local-workspace-v0.7` tag in GitHub. A clean clone into a **separate** folder can verify source restore again. Never use a clean clone as a replacement for the working copy holding SQLite. Keep the ZIP and separately verified data backups; they serve different purposes.
+
+Running v0.7 locally does not require pushing, reinstalling MT5, a broker login, or advancing Stage 1 or Stage 6.

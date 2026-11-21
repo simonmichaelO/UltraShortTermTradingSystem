@@ -2,6 +2,8 @@
 
 **Scope:** View the two saved synthetic snapshots in a browser. The independent FastAPI service reads a verified SQLite copy from the v0.5 recovery exercise. The regular dashboard and Access Lab still run independently. No broker, database writer, auth route, or trading controls are included.
 
+For the opt-in integrated dashboard using the already saved file, see [Local Workspace v0.7](LocalWorkspaceChecks.md). The steps below remain the standalone v0.6 setup. The operator also confirmed that v0.6 on Windows showed both snapshots after a clean loopback restart without a second seed.
+
 ## Hosted selection check · passed (operator reported)
 
 The operator confirmed that selecting the older **14:30:32 UTC** example in **Tickframe Sample History v0.6** changed **Account snapshot → Equity** to **$2,486.72**. This completes the hosted selection check, not a production or broker test.

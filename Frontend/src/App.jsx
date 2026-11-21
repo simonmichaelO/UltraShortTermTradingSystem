@@ -19,18 +19,22 @@ const PAGE_INFO = {
 };
 const FEED_PAGES = new Set(['overview', 'positions', 'analytics']);
 const NAV_IDS = new Set(NAV_ITEMS.map(item => item.id));
-function readPage() {
+function readPage(extraPageId) {
   const hash = window.location.hash.slice(1);
-  return NAV_IDS.has(hash) ? hash : 'overview';
+  return (NAV_IDS.has(hash) || hash === extraPageId) ? hash : 'overview';
 }
 function previewStorage() {
   try { return window.localStorage; } catch { return undefined; }
 }
 
-export default function App() {
+export default function App({ extraPage, version = '0.4', workspaceLabel = 'Tickframe preview' }) {
+  const extraPageId = extraPage?.id;
+  const navItems = extraPage
+    ? NAV_ITEMS.flatMap(item => item.id === 'history' ? [item, extraPage] : [item])
+    : NAV_ITEMS;
   const webStatus = usePreviewStatus();
   const sampleFeed = useSampleFeed();
-  const [page, setPage] = useState(readPage);
+  const [page, setPage] = useState(() => readPage(extraPageId));
   const [config, setConfig] = useState(() => loadConfig(previewStorage()));
   const [dialog, setDialog] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -40,10 +44,10 @@ export default function App() {
   const eventId = useRef(0);
 
   useEffect(() => {
-    const onHash = () => { setPage(readPage()); setMobileOpen(false); setDialog(null); window.scrollTo(0, 0); };
+    const onHash = () => { setPage(readPage(extraPageId)); setMobileOpen(false); setDialog(null); window.scrollTo(0, 0); };
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
-  }, []);
+  }, [extraPageId]);
 
   useEffect(() => {
     if (!toast) return;
@@ -89,25 +93,30 @@ export default function App() {
     closeDialog();
   }
 
+  const isExtraPage = page === extraPageId;
+  const [pageTitle, pageDescription] = isExtraPage ? [extraPage.name, extraPage.description] : (PAGE_INFO[page] ?? []);
+  const ExtraView = extraPage?.view;
+
   return <div className="app-shell">
     <a href="#main-content" className="skip-link" onClick={event => { event.preventDefault(); document.querySelector('main')?.focus(); }}>Skip to content</a>
-    <Sidebar page={page} mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+    <Sidebar items={navItems} page={page} mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
     <div className="app-main">
-      <Topbar page={page} mobileOpen={mobileOpen} onMenu={() => setMobileOpen(true)} onAlerts={() => setDialog({ type: 'alerts' })}
+      <Topbar items={navItems} page={page} mobileOpen={mobileOpen} onMenu={() => setMobileOpen(true)} onAlerts={() => setDialog({ type: 'alerts' })}
         alertCount={config.dashboardAlerts ? unread : 0} onStop={showStop} emergency={config.emergency} />
       <main className="workspace" id="main-content" tabIndex={-1}>
-        {page === 'overview' ? <OverviewHero onControls={showControls} /> : <PageHero title={PAGE_INFO[page][0]} description={PAGE_INFO[page][1]}
+        {page === 'overview' ? <OverviewHero onControls={showControls} /> : <PageHero title={pageTitle} description={pageDescription}
           action={page === 'shadow' ? <ControlsButton onClick={showControls} /> : undefined} />}
         <SimulationBanner />
         {FEED_PAGES.has(page) && <SampleFeed feed={sampleFeed} />}
         {page === 'overview' && <Overview config={config} webStatus={webStatus} sampleFeed={sampleFeed} onControls={showControls} onSymbol={selectSymbol} onPosition={showPosition} />}
         {page === 'positions' && <PositionsView sampleFeed={sampleFeed} onPosition={showPosition} />}
         {page === 'history' && <HistoryView />}
+        {isExtraPage && ExtraView && <ExtraView />}
         {page === 'analytics' && <AnalyticsView sampleFeed={sampleFeed} />}
         {page === 'shadow' && <ShadowView config={config} onControls={showControls} />}
         {page === 'settings' && <SettingsView config={config} webStatus={webStatus} onControls={showControls} onReset={() => setDialog({ type: 'reset' })}
           onAlertsToggle={dashboardAlerts => applyConfig({ ...config, dashboardAlerts }, dashboardAlerts ? 'Dashboard indicators on.' : 'Dashboard indicators off.')} />}
-        <footer className="workspace-footer"><span><FlaskConical size={13} /> Tickframe preview <span>·</span> v0.4</span><span>Sample data <span>·</span> No broker connection</span></footer>
+        <footer className="workspace-footer"><span><FlaskConical size={13} /> {workspaceLabel} <span>·</span> v{version}</span><span>Sample data <span>·</span> No broker connection</span></footer>
       </main>
     </div>
     {dialog?.type === 'controls' && <ControlsDialog config={config} onClose={closeDialog} onEmergency={showStop}

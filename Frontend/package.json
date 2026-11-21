@@ -13,7 +13,9 @@
     "build:auth": "vite build --config AuthLab/vite.config.js",
     "test:auth-browser": "playwright test --config playwright.auth.config.js",
     "build:history": "vite build --config SampleHistory/vite.config.js",
-    "test:history-browser": "playwright test --config playwright.history.config.js"
+    "test:history-browser": "playwright test --config playwright.history.config.js",
+    "build:local": "vite build --config LocalWorkspace/vite.config.js",
+    "test:local-browser": "playwright test --config playwright.local.config.js"
   },
   "dependencies": {
     "lucide-react": "1.76.0",
